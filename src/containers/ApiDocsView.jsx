@@ -1,15 +1,50 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import KVStoreSource from "../KVStore.js?raw";
 
 function ApiDocsView({ accessToken, onBack }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [copiedCode, setCopiedCode] = useState(null);
+
+  const copyToClipboard = useCallback(async (text, id) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedCode(id);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, []);
+
+  const CodeBlock = ({ children, id, language = "javascript" }) => (
+    <div className="code-block">
+      <div className="code-header">
+        <span className="code-language">{language}</span>
+        <button
+          type="button"
+          className={`copy-btn ${copiedCode === id ? "copied" : ""}`}
+          onClick={() => copyToClipboard(children, id)}
+          title="Copy to clipboard"
+        >
+          {copiedCode === id ? "✅ Copied!" : "📋 Copy"}
+        </button>
+      </div>
+      <pre>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
 
   return (
     <div className="api-docs-container">
       <div className="card">
         <div className="card-header">
-          <h2>API Documentation</h2>
-          <button type="button" onClick={onBack} className="btn btn-secondary">
-            Back to Dashboard
+          <h2>📚 API Documentation</h2>
+          <button
+            type="button"
+            onClick={onBack}
+            className="btn btn-secondary btn-back"
+          >
+            ← Back to Dashboard
           </button>
         </div>
         <div className="card-content">
@@ -19,21 +54,21 @@ function ApiDocsView({ accessToken, onBack }) {
               className={`tab ${activeTab === "overview" ? "active" : ""}`}
               onClick={() => setActiveTab("overview")}
             >
-              Overview
+              📋 Overview
             </button>
             <button
               type="button"
               className={`tab ${activeTab === "sdk" ? "active" : ""}`}
               onClick={() => setActiveTab("sdk")}
             >
-              JavaScript SDK
+              📦 JavaScript SDK
             </button>
             <button
               type="button"
               className={`tab ${activeTab === "examples" ? "active" : ""}`}
               onClick={() => setActiveTab("examples")}
             >
-              Examples
+              💡 Examples
             </button>
           </div>
 
@@ -41,61 +76,108 @@ function ApiDocsView({ accessToken, onBack }) {
             <div className="tab-content">
               <h3>API Overview</h3>
               <p>Our KV Store API uses a single endpoint for all operations:</p>
-              <div className="code-block">
-                <code>POST http://localhost:3001/api/connect</code>
-              </div>
+              <CodeBlock id="endpoint" language="http">
+                POST http://localhost:3001/api/connect
+              </CodeBlock>
 
               <h4>Authentication</h4>
               <p>Include your access token in the Authorization header:</p>
-              <div className="code-block">
-                <code>Authorization: Bearer your-access-token</code>
-              </div>
+              <CodeBlock id="auth" language="http">
+                Authorization: Bearer your-access-token
+              </CodeBlock>
 
               <h4>Request Format</h4>
-              <div className="code-block">
-                <pre>{`{
+              <CodeBlock id="request-format" language="json">
+                {`{
   "action": "operation-name",
   "param1": "value1",
   "param2": "value2"
-}`}</pre>
-              </div>
+}`}
+              </CodeBlock>
 
               <h4>Available Operations</h4>
-              <ul className="operation-list">
-                <li>
-                  <strong>set</strong> - Store a key-value pair
-                </li>
-                <li>
-                  <strong>get</strong> - Retrieve a value by key
-                </li>
-                <li>
-                  <strong>setMany</strong> - Store multiple key-value pairs
-                </li>
-                <li>
-                  <strong>getMany</strong> - Retrieve multiple values by keys
-                </li>
-                <li>
-                  <strong>update</strong> - Update an existing key
-                </li>
-                <li>
-                  <strong>delete</strong> - Delete a key
-                </li>
-                <li>
-                  <strong>deleteMany</strong> - Delete multiple keys
-                </li>
-                <li>
-                  <strong>entries</strong> - Get all key-value pairs
-                </li>
-                <li>
-                  <strong>keys</strong> - Get all keys
-                </li>
-                <li>
-                  <strong>values</strong> - Get all values
-                </li>
-                <li>
-                  <strong>clear</strong> - Clear all data in store
-                </li>
-              </ul>
+              <div className="operations-grid">
+                <div className="operation-category">
+                  <h5>Authentication & User Management</h5>
+                  <ul className="operation-list">
+                    <li>
+                      <strong>register</strong> - Register a new user
+                    </li>
+                    <li>
+                      <strong>login</strong> - Authenticate user
+                    </li>
+                    <li>
+                      <strong>generate-token</strong> - Generate access token
+                    </li>
+                    <li>
+                      <strong>get-user-info</strong> - Get current user
+                      information
+                    </li>
+                  </ul>
+                </div>
+                <div className="operation-category">
+                  <h5>Database & Store Management</h5>
+                  <ul className="operation-list">
+                    <li>
+                      <strong>get-databases</strong> - List all databases
+                    </li>
+                    <li>
+                      <strong>create-database</strong> - Create a new database
+                    </li>
+                    <li>
+                      <strong>delete-database</strong> - Delete a database
+                    </li>
+                    <li>
+                      <strong>get-stores</strong> - List stores in a database
+                    </li>
+                    <li>
+                      <strong>create-store</strong> - Create a new store
+                    </li>
+                    <li>
+                      <strong>delete-store</strong> - Delete a store
+                    </li>
+                  </ul>
+                </div>
+                <div className="operation-category">
+                  <h5>Key-Value Operations</h5>
+                  <ul className="operation-list">
+                    <li>
+                      <strong>set</strong> - Store a key-value pair
+                    </li>
+                    <li>
+                      <strong>get</strong> - Retrieve a value by key
+                    </li>
+                    <li>
+                      <strong>setMany</strong> - Store multiple key-value pairs
+                    </li>
+                    <li>
+                      <strong>getMany</strong> - Retrieve multiple values by
+                      keys
+                    </li>
+                    <li>
+                      <strong>update</strong> - Update an existing key
+                    </li>
+                    <li>
+                      <strong>delete</strong> - Delete a key
+                    </li>
+                    <li>
+                      <strong>deleteMany</strong> - Delete multiple keys
+                    </li>
+                    <li>
+                      <strong>entries</strong> - Get all key-value pairs
+                    </li>
+                    <li>
+                      <strong>keys</strong> - Get all keys
+                    </li>
+                    <li>
+                      <strong>values</strong> - Get all values
+                    </li>
+                    <li>
+                      <strong>clear</strong> - Clear all data in store
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
 
@@ -105,134 +187,9 @@ function ApiDocsView({ accessToken, onBack }) {
               <p>Use our JavaScript SDK for easy integration:</p>
 
               <h4>Installation</h4>
-              <div className="code-block">
-                <pre>{`// Copy this code to your project
-class KVStore {
-  constructor(apiUrl, options) {
-    this.apiUrl = apiUrl;
-    this.accessToken = options.accessToken;
-    this.storeName = options.storeName;
-    this.dbName = options.dbName;
-  }
-
-  async _request(action, params = {}) {
-    const response = await fetch(this.apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: \`Bearer $\{this.accessToken}\`,
-      },
-      body: JSON.stringify({
-        action,
-        dbName: this.dbName,
-        storeName: this.storeName,
-        ...params,
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Request failed");
-    }
-    return data;
-  }
-  // const result = await db.generateToken();
-  async register(formData) {
-    return await this._request("register", formData);
-  }
-
-  async login(formData) {
-    return await this._request("login", formData);
-  }
-
-  async generateToken() {
-    return await this._request("generate-token");
-  }
-
-  async getUserInfo() {
-    return await this._request("get-user-info");
-  }
-
-  async getDatabases() {
-    return await this._request("get-databases");
-  }
-
-  async createDatabase(name) {
-    return await this._request("create-database", { name });
-  }
-
-  async createStore(dbName, storeName) {
-    return await this._request("create-store", { dbName, storeName });
-  }
-
-  async set(key, value) {
-    return await this._request("set", { key, value });
-  }
-
-  async get(key) {
-    const result = await this._request("get", { key });
-    return result.value;
-  }
-
-  async getStores(dbName) {
-    const result = await this._request("get-stores", { dbName });
-    return result.stores;
-  }
-
-  async setMany(entries) {
-    return await this._request("setMany", { entries });
-  }
-
-  async getMany(keys) {
-    const result = await this._request("getMany", { keys });
-    return result.values;
-  }
-
-  async update(key, value) {
-    return await this._request("update", { key, value });
-  }
-
-  async delete(key) {
-    return await this._request("delete", { key });
-  }
-
-  async deleteMany(keys) {
-    return await this._request("deleteMany", { keys });
-  }
-
-  async entries(dbName, storeName) {
-    const result = await this._request("entries", { dbName, storeName });
-    return result.entries;
-  }
-
-  async keys() {
-    const result = await this._request("keys");
-    return result.keys;
-  }
-
-  async values() {
-    const result = await this._request("values");
-    return result.values;
-  }
-
-  async clear() {
-    return await this._request("clear");
-  }
-
-  async deleteStore(dbName, storeName) {
-    return await this._request("delete-store", { dbName, storeName });
-  }
-
-  async deleteDatabase(dbName) {
-    return await this._request("delete-database", { dbName });
-  }
-}
-
-// Factory function
-export function store(apiUrl, storeName, options) {
-  return new KVStore(apiUrl, storeName, options);
-}`}</pre>
-              </div>
+              <CodeBlock id="sdk-class" language="javascript">
+                {KVStoreSource}
+              </CodeBlock>
             </div>
           )}
 
@@ -240,9 +197,9 @@ export function store(apiUrl, storeName, options) {
             <div className="tab-content">
               <h3>Usage Examples</h3>
 
-              <h4>Basic Usage</h4>
-              <div className="code-block">
-                <pre>{`// Initialize the store
+              <h4>Basic Operations</h4>
+              <CodeBlock id="basic-usage" language="javascript">
+                {`// Initialize the store
 const db = store('http://localhost:3001/api/connect', 'myStore', {
   accessToken: '${accessToken}',
   dbName: 'myDatabase'
@@ -278,23 +235,72 @@ console.log(keys); // ['key1', 'key2', 'key3', ...]
 await db.delete('key1');
 
 // Clear all data
-await db.clear();`}</pre>
-              </div>
+await db.clear();`}
+              </CodeBlock>
 
               <h4>Error Handling</h4>
-              <div className="code-block">
-                <pre>{`try {
+              <CodeBlock id="error-handling" language="javascript">
+                {`try {
   await db.set('myKey', 'myValue');
   const value = await db.get('myKey');
   console.log('Success:', value);
 } catch (error) {
   console.error('Error:', error.message);
-}`}</pre>
-              </div>
+}`}
+              </CodeBlock>
+
+              <h4>Database & Store Management</h4>
+              <CodeBlock id="db-management" language="javascript">
+                {`// Get all databases
+const databases = await db.getDatabases();
+console.log(databases);
+
+// Create a new database
+await db.createDatabase('newDatabase');
+
+// Get stores in a database
+const stores = await db.getStores('myDatabase');
+console.log(stores);
+
+// Create a new store
+await db.createStore('myDatabase', 'newStore');
+
+// Delete a store
+await db.deleteStore('myDatabase', 'oldStore');
+
+// Delete a database
+await db.deleteDatabase('oldDatabase');`}
+              </CodeBlock>
+
+              <h4>Authentication Examples</h4>
+              <CodeBlock id="auth-examples" language="javascript">
+                {`// Register new user
+const userData = {
+  username: 'john_doe',
+  password: 'secure_password',
+  email: 'john@example.com'
+};
+await db.register(userData);
+
+// Login user
+const loginData = {
+  username: 'john_doe',
+  password: 'secure_password'
+};
+const loginResult = await db.login(loginData);
+
+// Generate access token
+const tokenResult = await db.generateToken();
+console.log('New token:', tokenResult.token);
+
+// Get user information
+const userInfo = await db.getUserInfo();
+console.log('User:', userInfo);`}
+              </CodeBlock>
 
               <h4>Working with Complex Data</h4>
-              <div className="code-block">
-                <pre>{`// Store complex objects
+              <CodeBlock id="complex-data" language="javascript">
+                {`// Store complex objects
 await db.set('config', {
   theme: 'dark',
   language: 'en',
@@ -312,8 +318,8 @@ await db.update('config', {
   theme: 'light',
   language: 'pl',
   features: ['feature1', 'feature2', 'feature3']
-});`}</pre>
-              </div>
+});`}
+              </CodeBlock>
             </div>
           )}
         </div>
