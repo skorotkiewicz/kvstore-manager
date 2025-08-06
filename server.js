@@ -1,16 +1,20 @@
 // biome-ignore assist/source/organizeImports: <>
-import express from "express";
-import cors from "cors";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { serve } from "@hono/node-server";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const app = express();
+const app = new Hono();
 const PORT = 3001;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 
 // Simple file-based database
 const DB_PATH = "./database";
@@ -70,16 +74,15 @@ function hashPassword(password) {
 }
 
 // Middleware to verify token
-async function verifyToken(req, res, next) {
-  if (req.body.action === "register" || req.body.action === "login") {
+async function verifyToken(c, next) {
+  const body = await c.req.json();
+  if (body.action === "register" || body.action === "login") {
     return next();
   }
 
-  const authHeader = req.headers.authorization;
+  const authHeader = c.req.header("authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ error: "Missing or invalid authorization header" });
+    return c.json({ error: "Missing or invalid authorization header" }, 401);
   }
 
   const token = authHeader.substring(7);
@@ -89,80 +92,81 @@ async function verifyToken(req, res, next) {
     u.accessTokens?.includes(token),
   );
   if (!user) {
-    return res.status(401).json({ error: "Invalid access token" });
+    return c.json({ error: "Invalid access token" }, 401);
   }
 
-  req.user = user;
-  next();
+  c.set("user", user);
+  await next();
 }
 
 // Single API endpoint for all operations
-app.post("/api/connect", verifyToken, async (req, res) => {
+app.post("/api/connect", verifyToken, async (c) => {
   try {
-    const { action, ...params } = req.body;
+    const body = await c.req.json();
+    const { action, ...params } = body;
 
     switch (action) {
       case "register":
-        return await handleRegister(req, res, params);
+        return await handleRegister(c, params);
       case "login":
-        return await handleLogin(req, res, params);
+        return await handleLogin(c, params);
       case "generate-token":
-        return await handleGenerateToken(req, res, params);
+        return await handleGenerateToken(c, params);
       case "get-databases":
-        return await handleGetDatabases(req, res, params);
+        return await handleGetDatabases(c, params);
       case "create-database":
-        return await handleCreateDatabase(req, res, params);
+        return await handleCreateDatabase(c, params);
       case "get-stores":
-        return await handleGetStores(req, res, params);
+        return await handleGetStores(c, params);
       case "create-store":
-        return await handleCreateStore(req, res, params);
+        return await handleCreateStore(c, params);
       case "set":
-        return await handleSet(req, res, params);
+        return await handleSet(c, params);
       case "get":
-        return await handleGet(req, res, params);
+        return await handleGet(c, params);
       case "setMany":
-        return await handleSetMany(req, res, params);
+        return await handleSetMany(c, params);
       case "getMany":
-        return await handleGetMany(req, res, params);
+        return await handleGetMany(c, params);
       case "update":
-        return await handleUpdate(req, res, params);
+        return await handleUpdate(c, params);
       case "delete":
-        return await handleDelete(req, res, params);
+        return await handleDelete(c, params);
       case "deleteMany":
-        return await handleDeleteMany(req, res, params);
+        return await handleDeleteMany(c, params);
       case "entries":
-        return await handleEntries(req, res, params);
+        return await handleEntries(c, params);
       case "keys":
-        return await handleKeys(req, res, params);
+        return await handleKeys(c, params);
       case "values":
-        return await handleValues(req, res, params);
+        return await handleValues(c, params);
       case "clear":
-        return await handleClear(req, res, params);
+        return await handleClear(c, params);
       case "delete-store":
-        return await handleDeleteStore(req, res, params);
+        return await handleDeleteStore(c, params);
       case "delete-database":
-        return await handleDeleteDatabase(req, res, params);
+        return await handleDeleteDatabase(c, params);
       case "get-user-info":
-        return await handleGetUserInfo(req, res, params);
+        return await handleGetUserInfo(c, params);
       default:
-        return res.status(400).json({ error: "Invalid action" });
+        return c.json({ error: "Invalid action" }, 400);
     }
   } catch (error) {
     console.error("API error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return c.json({ error: "Internal server error" }, 500);
   }
 });
 
 // Handler functions
-async function handleRegister(_req, res, { username, email, password }) {
+async function handleRegister(c, { username, email, password }) {
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return c.json({ error: "Missing required fields" }, 400);
   }
 
   const users = await readUsers();
 
   if (users[email]) {
-    return res.status(400).json({ error: "User already exists" });
+    return c.json({ error: "User already exists" }, 400);
   }
 
   const userId = crypto.randomUUID();
@@ -180,34 +184,32 @@ async function handleRegister(_req, res, { username, email, password }) {
 
   await writeUsers(users);
 
-  res.json({
+  return c.json({
     message: "User registered successfully",
     user: { id: userId, username, email },
     accessToken,
   });
 }
 
-async function handleLogin(_req, res, { email, password }) {
+async function handleLogin(c, { email, password }) {
   const users = await readUsers();
   const user = users[email];
 
   if (!user || user.password !== hashPassword(password)) {
-    return res.status(401).json({ error: "Invalid credentials" });
+    return c.json({ error: "Invalid credentials" }, 401);
   }
 
-  res.json({
+  return c.json({
     message: "Login successful",
     user: { id: user.id, username: user.username, email: user.email },
     accessToken: user.accessTokens[0],
   });
 }
 
-async function handleGenerateToken(req, res, _params) {
-  const authHeader = req.headers.authorization;
+async function handleGenerateToken(c, _params) {
+  const authHeader = c.req.header("authorization");
   // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-  //   return res
-  //     .status(401)
-  //     .json({ error: "Missing or invalid authorization header" });
+  //   return c.json({ error: "Missing or invalid authorization header" }, 401);
   // }
 
   const token = authHeader.substring(7);
@@ -217,7 +219,7 @@ async function handleGenerateToken(req, res, _params) {
     u.accessTokens?.includes(token),
   );
   if (!userEntry) {
-    return res.status(401).json({ error: "Invalid access token" });
+    return c.json({ error: "Invalid access token" }, 401);
   }
 
   const [_email, user] = userEntry;
@@ -226,25 +228,27 @@ async function handleGenerateToken(req, res, _params) {
 
   await writeUsers(users);
 
-  res.json({ accessToken: newToken });
+  return c.json({ accessToken: newToken });
 }
 
-async function handleGetDatabases(req, res, _params) {
-  const userPath = path.join(DB_PATH, req.user.id);
+async function handleGetDatabases(c, _params) {
+  const user = c.get("user");
+  const userPath = path.join(DB_PATH, user.id);
   try {
     const databases = await fs.readdir(userPath);
-    res.json({ databases });
+    return c.json({ databases });
   } catch {
-    res.json({ databases: [] });
+    return c.json({ databases: [] });
   }
 }
 
-async function handleCreateDatabase(req, res, { name }) {
+async function handleCreateDatabase(c, { name }) {
   if (!name) {
-    return res.status(400).json({ error: "Database name is required" });
+    return c.json({ error: "Database name is required" }, 400);
   }
 
-  const userPath = path.join(DB_PATH, req.user.id);
+  const user = c.get("user");
+  const userPath = path.join(DB_PATH, user.id);
   const databases = [];
 
   try {
@@ -253,194 +257,203 @@ async function handleCreateDatabase(req, res, { name }) {
   } catch {}
 
   if (databases.length >= 3) {
-    return res.status(400).json({ error: "Maximum 3 databases allowed" });
+    return c.json({ error: "Maximum 3 databases allowed" }, 400);
   }
 
   if (databases.includes(name)) {
-    return res.status(400).json({ error: "Database already exists" });
+    return c.json({ error: "Database already exists" }, 400);
   }
 
   const dbPath = path.join(userPath, name);
   await fs.mkdir(dbPath, { recursive: true });
 
-  res.json({ message: "Database created successfully" });
+  return c.json({ message: "Database created successfully" });
 }
 
-async function handleGetStores(req, res, { dbName }) {
-  const storePath = path.join(DB_PATH, req.user.id, dbName);
+async function handleGetStores(c, { dbName }) {
+  const user = c.get("user");
+  const storePath = path.join(DB_PATH, user.id, dbName);
 
   try {
     const files = await fs.readdir(storePath);
     const stores = files
       .filter((f) => f.endsWith(".json"))
       .map((f) => f.replace(".json", ""));
-    res.json({ stores });
+    return c.json({ stores });
   } catch {
-    res.json({ stores: [] });
+    return c.json({ stores: [] });
   }
 }
 
-async function handleCreateStore(req, res, { dbName, storeName }) {
+async function handleCreateStore(c, { dbName, storeName }) {
   if (!storeName) {
-    return res.status(400).json({ error: "Store name is required" });
+    return c.json({ error: "Store name is required" }, 400);
   }
 
-  await writeStore(req.user.id, dbName, storeName, {});
+  const user = c.get("user");
+  await writeStore(user.id, dbName, storeName, {});
 
-  res.json({ message: "Store created successfully" });
+  return c.json({ message: "Store created successfully" });
 }
 
 // KV Store operation handlers
-async function handleSet(req, res, { dbName, storeName, key, value }) {
+async function handleSet(c, { dbName, storeName, key, value }) {
   if (!key) {
-    return res.status(400).json({ error: "Key is required" });
+    return c.json({ error: "Key is required" }, 400);
   }
 
-  const data = await readStore(req.user.id, dbName, storeName);
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
   data[key] = value;
-  await writeStore(req.user.id, dbName, storeName, data);
+  await writeStore(user.id, dbName, storeName, data);
 
-  res.json({ success: true });
+  return c.json({ success: true });
 }
 
-async function handleGet(req, res, { dbName, storeName, key }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleGet(c, { dbName, storeName, key }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
 
   if (key in data) {
-    res.json({ value: data[key] });
+    return c.json({ value: data[key] });
   } else {
-    res.json({ value: null });
+    return c.json({ value: null });
   }
 }
 
-async function handleSetMany(req, res, { dbName, storeName, entries }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleSetMany(c, { dbName, storeName, entries }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
 
   for (const [key, value] of entries) {
     data[key] = value;
   }
 
-  await writeStore(req.user.id, dbName, storeName, data);
-  res.json({ success: true });
+  await writeStore(user.id, dbName, storeName, data);
+  return c.json({ success: true });
 }
 
-async function handleGetMany(req, res, { dbName, storeName, keys }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleGetMany(c, { dbName, storeName, keys }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
   const result = {};
 
   for (const key of keys) {
     result[key] = data[key] || null;
   }
 
-  res.json({ values: result });
+  return c.json({ values: result });
 }
 
-async function handleUpdate(req, res, { dbName, storeName, key, value }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleUpdate(c, { dbName, storeName, key, value }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
 
   if (!(key in data)) {
-    return res.status(404).json({ error: "Key not found" });
+    return c.json({ error: "Key not found" }, 404);
   }
 
   data[key] = value;
-  await writeStore(req.user.id, dbName, storeName, data);
+  await writeStore(user.id, dbName, storeName, data);
 
-  res.json({ success: true });
+  return c.json({ success: true });
 }
 
-async function handleDelete(req, res, { dbName, storeName, key }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleDelete(c, { dbName, storeName, key }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
 
   if (!(key in data)) {
-    return res.status(404).json({ error: "Key not found" });
+    return c.json({ error: "Key not found" }, 404);
   }
 
   delete data[key];
-  await writeStore(req.user.id, dbName, storeName, data);
+  await writeStore(user.id, dbName, storeName, data);
 
-  res.json({ success: true });
+  return c.json({ success: true });
 }
 
-async function handleDeleteMany(req, res, { dbName, storeName, keys }) {
-  const data = await readStore(req.user.id, dbName, storeName);
+async function handleDeleteMany(c, { dbName, storeName, keys }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
 
   for (const key of keys) {
     delete data[key];
   }
 
-  await writeStore(req.user.id, dbName, storeName, data);
-  res.json({ success: true });
+  await writeStore(user.id, dbName, storeName, data);
+  return c.json({ success: true });
 }
 
-async function handleEntries(req, res, { dbName, storeName }) {
-  const data = await readStore(req.user.id, dbName, storeName);
-  res.json({ entries: Object.entries(data) });
+async function handleEntries(c, { dbName, storeName }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
+  return c.json({ entries: Object.entries(data) });
 }
 
-async function handleKeys(req, res, { dbName, storeName }) {
-  const data = await readStore(req.user.id, dbName, storeName);
-  res.json({ keys: Object.keys(data) });
+async function handleKeys(c, { dbName, storeName }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
+  return c.json({ keys: Object.keys(data) });
 }
 
-async function handleValues(req, res, { dbName, storeName }) {
-  const data = await readStore(req.user.id, dbName, storeName);
-  res.json({ values: Object.values(data) });
+async function handleValues(c, { dbName, storeName }) {
+  const user = c.get("user");
+  const data = await readStore(user.id, dbName, storeName);
+  return c.json({ values: Object.values(data) });
 }
 
-async function handleClear(req, res, { dbName, storeName }) {
-  await writeStore(req.user.id, dbName, storeName, {});
-  res.json({ success: true });
+async function handleClear(c, { dbName, storeName }) {
+  const user = c.get("user");
+  await writeStore(user.id, dbName, storeName, {});
+  return c.json({ success: true });
 }
 
-async function handleDeleteStore(req, res, { dbName, storeName }) {
+async function handleDeleteStore(c, { dbName, storeName }) {
   if (!dbName || !storeName) {
-    return res
-      .status(400)
-      .json({ error: "Database name and store name are required" });
+    return c.json({ error: "Database name and store name are required" }, 400);
   }
 
-  const storePath = path.join(
-    DB_PATH,
-    req.user.id,
-    dbName,
-    `${storeName}.json`,
-  );
+  const user = c.get("user");
+  const storePath = path.join(DB_PATH, user.id, dbName, `${storeName}.json`);
 
   try {
     await fs.unlink(storePath);
-    res.json({ success: true, message: "Store deleted successfully" });
+    return c.json({ success: true, message: "Store deleted successfully" });
   } catch (error) {
     if (error.code === "ENOENT") {
-      return res.status(404).json({ error: "Store not found" });
+      return c.json({ error: "Store not found" }, 404);
     }
     throw error;
   }
 }
 
-async function handleDeleteDatabase(req, res, { dbName }) {
+async function handleDeleteDatabase(c, { dbName }) {
   if (!dbName) {
-    return res.status(400).json({ error: "Database name is required" });
+    return c.json({ error: "Database name is required" }, 400);
   }
 
-  const dbPath = path.join(DB_PATH, req.user.id, dbName);
+  const user = c.get("user");
+  const dbPath = path.join(DB_PATH, user.id, dbName);
 
   try {
     await fs.rm(dbPath, { recursive: true, force: true });
-    res.json({ success: true, message: "Database deleted successfully" });
+    return c.json({ success: true, message: "Database deleted successfully" });
   } catch (error) {
     if (error.code === "ENOENT") {
-      return res.status(404).json({ error: "Database not found" });
+      return c.json({ error: "Database not found" }, 404);
     }
     throw error;
   }
 }
 
-async function handleGetUserInfo(req, res, _params) {
-  res.json({
+async function handleGetUserInfo(c, _params) {
+  const user = c.get("user");
+  return c.json({
     user: {
-      id: req.user.id,
-      username: req.user.username,
-      email: req.user.email,
+      id: user.id,
+      username: user.username,
+      email: user.email,
     },
   });
 }
@@ -448,10 +461,12 @@ async function handleGetUserInfo(req, res, _params) {
 // Initialize database and start server
 initDB()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
+    console.log(`Server running on http://localhost:${PORT}`);
   })
   .catch((error) => {
     console.error("Failed to start server:", error);
   });
+
+serve({ port: PORT, fetch: app.fetch });
+
+export default { port: PORT, fetch: app.fetch };
