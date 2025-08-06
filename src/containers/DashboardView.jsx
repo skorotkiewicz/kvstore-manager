@@ -177,8 +177,8 @@ function DashboardView({
                   </form>
                 </div>
 
-                {/* Key-Value List */}
-                <div className="kv-list">
+                {/* Key-Value List - JSON Style */}
+                <div className="json-viewer">
                   {Object.entries(storeData).length === 0 ? (
                     <div className="empty-state small">
                       <Key size={32} />
@@ -186,31 +186,41 @@ function DashboardView({
                       <p>Add your first key-value pair to get started</p>
                     </div>
                   ) : (
-                    <div className="kv-items">
-                      {Object.entries(storeData).map(([key, value]) => (
-                        <div key={key} className="kv-item">
-                          <div className="kv-item-content">
-                            <div className="kv-key">
-                              <Key size={14} />
-                              <span>{key}</span>
-                            </div>
-                            <div className="kv-value">
-                              <span className="value-type">{typeof value}</span>
-                              <span className="value-content">
-                                {JSON.stringify(value)}
+                    <div className="json-container">
+                      <div className="json-brace">{"{"}</div>
+                      {Object.entries(storeData).map(
+                        ([key, value], index, array) => (
+                          <div key={key} className="json-line">
+                            <div className="json-entry">
+                              <span className="json-key">"{key}"</span>
+                              <span className="json-colon">: </span>
+                              <span
+                                className={`json-value json-${typeof value}`}
+                              >
+                                {typeof value === "string"
+                                  ? `"${value}"`
+                                  : JSON.stringify(value)}
+                              </span>
+                              {index < array.length - 1 && (
+                                <span className="json-comma">,</span>
+                              )}
+                              <span className="json-type-badge">
+                                {typeof value}
                               </span>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteKey(key)}
+                              className="json-delete-btn"
+                              disabled={isLoading}
+                              title={`Delete ${key}`}
+                            >
+                              <Trash2 size={12} />
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteKey(key)}
-                            className="btn btn-danger-xs"
-                            disabled={isLoading}
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      ))}
+                        ),
+                      )}
+                      <div className="json-brace">{"}"}</div>
                     </div>
                   )}
                 </div>
