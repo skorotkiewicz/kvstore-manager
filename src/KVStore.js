@@ -92,7 +92,13 @@ export class KVStore {
   }
 
   async entries(dbName, storeName) {
-    const result = await this._request("entries", { dbName, storeName });
+    if (!dbName) dbName = this.dbName;
+    if (!storeName) storeName = this.storeName;
+
+    const result = await this._request("entries", {
+      dbName,
+      storeName,
+    });
     return result.entries;
   }
 

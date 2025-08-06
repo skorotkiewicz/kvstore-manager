@@ -171,9 +171,10 @@ function ApiDocsView({ accessToken, onBack }) {
               <h4>Basic Operations</h4>
               <CodeBlock id="basic-usage" language="javascript">
                 {`// Initialize the store
-const db = store('http://localhost:3001/api/connect', 'myStore', {
+const db = new KVStore('http://localhost:3001/api/connect', {
   accessToken: '${accessToken}',
-  dbName: 'myDatabase'
+  dbName: 'myDatabase',
+  storeName: 'myStore'
 });
 
 // Set a value
