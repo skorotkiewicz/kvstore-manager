@@ -448,6 +448,177 @@ body {
   color: #999;
 }
 
+/* InfoBox */
+.infobox-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 500px;
+  max-width: calc(100vw - 4rem);
+  max-height: 80vh;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.infobox-container:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.infobox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.infobox-container h3 {
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.infobox-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.infobox-close-btn:hover {
+  background: #f7fafc;
+  color: #e53e3e;
+  transform: scale(1.1);
+}
+
+.infobox-container h3::before {
+  content: "💡";
+  font-size: 1.2rem;
+}
+
+.infobox-section {
+  margin-bottom: 1.5rem;
+}
+
+.infobox-section:last-child {
+  margin-bottom: 0;
+}
+
+.infobox-section h4 {
+  color: #4a5568;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.infobox-section h4:first-of-type::before {
+  content: "🌐";
+  font-size: 1rem;
+}
+
+.infobox-section h4:last-of-type::before {
+  content: "⚡";
+  font-size: 1rem;
+}
+
+.code-example {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.code-example:hover {
+  border-color: #cbd5e0;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.code-example::before {
+  content: "📋 Click to copy";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: #718096;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.code-example:hover::before {
+  opacity: 1;
+}
+
+.code-example code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #2d3748;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: block;
+  margin-right: 4rem;
+}
+
+.infobox-container .code-example code {
+  background: none;
+}
+
+/* Responsive adjustments for InfoBox */
+@media (max-width: 768px) {
+  .infobox-container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    max-width: none;
+    padding: 1rem;
+  }
+  
+  .code-example {
+    padding: 0.75rem;
+  }
+  
+  .code-example code {
+    font-size: 0.8rem;
+    margin-right: 2rem;
+  }
+  
+  .code-example::before {
+    right: 0.5rem;
+    top: 0.25rem;
+    font-size: 0.7rem;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard {
