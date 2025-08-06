@@ -1,5 +1,5 @@
 {
-  "name": "kv-store-manager",
+  "name": "@skorotkiewicz/kvstore-manager",
   "private": true,
   "version": "0.0.0",
   "type": "module",
