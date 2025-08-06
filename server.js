@@ -138,6 +138,10 @@ app.post("/api/connect", verifyToken, async (req, res) => {
         return await handleValues(req, res, params);
       case "clear":
         return await handleClear(req, res, params);
+      case "delete-store":
+        return await handleDeleteStore(req, res, params);
+      case "delete-database":
+        return await handleDeleteDatabase(req, res, params);
       default:
         return res.status(400).json({ error: "Invalid action" });
     }
@@ -274,12 +278,12 @@ async function handleGetStores(req, res, { dbName }) {
   }
 }
 
-async function handleCreateStore(req, res, { dbName, name }) {
-  if (!name) {
+async function handleCreateStore(req, res, { dbName, storeName }) {
+  if (!storeName) {
     return res.status(400).json({ error: "Store name is required" });
   }
 
-  await writeStore(req.user.id, dbName, name, {});
+  await writeStore(req.user.id, dbName, storeName, {});
 
   res.json({ message: "Store created successfully" });
 }
@@ -384,6 +388,49 @@ async function handleValues(req, res, { dbName, storeName }) {
 async function handleClear(req, res, { dbName, storeName }) {
   await writeStore(req.user.id, dbName, storeName, {});
   res.json({ success: true });
+}
+
+async function handleDeleteStore(req, res, { dbName, storeName }) {
+  if (!dbName || !storeName) {
+    return res
+      .status(400)
+      .json({ error: "Database name and store name are required" });
+  }
+
+  const storePath = path.join(
+    DB_PATH,
+    req.user.id,
+    dbName,
+    `${storeName}.json`,
+  );
+
+  try {
+    await fs.unlink(storePath);
+    res.json({ success: true, message: "Store deleted successfully" });
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return res.status(404).json({ error: "Store not found" });
+    }
+    throw error;
+  }
+}
+
+async function handleDeleteDatabase(req, res, { dbName }) {
+  if (!dbName) {
+    return res.status(400).json({ error: "Database name is required" });
+  }
+
+  const dbPath = path.join(DB_PATH, req.user.id, dbName);
+
+  try {
+    await fs.rm(dbPath, { recursive: true, force: true });
+    res.json({ success: true, message: "Database deleted successfully" });
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return res.status(404).json({ error: "Database not found" });
+    }
+    throw error;
+  }
 }
 
 // Initialize database and start server

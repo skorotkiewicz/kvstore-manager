@@ -13,6 +13,8 @@ function DashboardView({
   onSetKeyValue,
   onDeleteKey,
   onClearStore,
+  onDeleteStore,
+  onDeleteDatabase,
 }) {
   const [newDbName, setNewDbName] = useState("");
   const [newStoreName, setNewStoreName] = useState("");
@@ -68,9 +70,30 @@ function DashboardView({
               <div
                 key={db}
                 className={`list-item ${selectedDb === db ? "active" : ""}`}
-                onClick={() => onSelectDatabase(db)}
               >
-                {db}
+                <div
+                  className="list-item-content"
+                  onClick={() => onSelectDatabase(db)}
+                >
+                  {db}
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (
+                      window.confirm(
+                        `Are you sure you want to delete database "${db}"? This will delete all stores and data in this database.`,
+                      )
+                    ) {
+                      onDeleteDatabase(db);
+                    }
+                  }}
+                  className="delete-btn"
+                  title="Delete database"
+                >
+                  x
+                </button>
               </div>
             ))}
           </div>
@@ -96,9 +119,30 @@ function DashboardView({
                 <div
                   key={store}
                   className={`list-item ${selectedStore === store ? "active" : ""}`}
-                  onClick={() => onSelectStore(selectedDb, store)}
                 >
-                  {store}
+                  <div
+                    className="list-item-content"
+                    onClick={() => onSelectStore(selectedDb, store)}
+                  >
+                    {store}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        window.confirm(
+                          `Are you sure you want to delete store "${store}"? This will delete all data in this store.`,
+                        )
+                      ) {
+                        onDeleteStore(selectedDb, store);
+                      }
+                    }}
+                    className="delete-btn"
+                    title="Delete store"
+                  >
+                    x
+                  </button>
                 </div>
               ))}
             </div>

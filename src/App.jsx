@@ -93,7 +93,7 @@ function App() {
 
   const createDatabase = async (name) => {
     try {
-      await db.getDatabases(name);
+      await db.createDatabase(name);
       loadDatabases();
       alert("Database created successfully!");
     } catch (error) {
@@ -175,6 +175,40 @@ function App() {
     }
   };
 
+  const deleteStore = async (dbName, storeName) => {
+    try {
+      await db.deleteStore(dbName, storeName);
+
+      if (selectedStore === storeName) {
+        setSelectedStore(null);
+        setStoreData({});
+      }
+
+      loadStores(dbName);
+      alert("Store deleted successfully!");
+    } catch (error) {
+      alert(`Failed to delete store: ${error.message}`);
+    }
+  };
+
+  const deleteDatabase = async (dbName) => {
+    try {
+      await db.deleteDatabase(dbName);
+
+      if (selectedDb === dbName) {
+        setSelectedDb(null);
+        setStores([]);
+        setSelectedStore(null);
+        setStoreData({});
+      }
+
+      loadDatabases();
+      alert("Database deleted successfully!");
+    } catch (error) {
+      alert(`Failed to delete database: ${error.message}`);
+    }
+  };
+
   if (currentView === "login") {
     return <AuthView onRegister={handleRegister} onLogin={handleLogin} />;
   }
@@ -242,6 +276,8 @@ function App() {
             onSetKeyValue={setKeyValue}
             onDeleteKey={deleteKey}
             onClearStore={clearStore}
+            onDeleteStore={deleteStore}
+            onDeleteDatabase={deleteDatabase}
           />
         )}
       </main>

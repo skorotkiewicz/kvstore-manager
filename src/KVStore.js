@@ -105,6 +105,14 @@ export class KVStore {
   async clear() {
     return await this._request("clear");
   }
+
+  async deleteStore(dbName, storeName) {
+    return await this._request("delete-store", { dbName, storeName });
+  }
+
+  async deleteDatabase(dbName) {
+    return await this._request("delete-database", { dbName });
+  }
 }
 
 // Factory function
