@@ -1,51 +1,66 @@
 import { useState } from "react";
 import KVStoreSource from "../KVStore.js?raw";
 import { CodeBlock } from "./CodeBlock";
+import { Book, ArrowLeft, FileText, Package, Lightbulb } from "lucide-react";
 
 function ApiDocsView({ accessToken, onBack }) {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
     <div className="api-docs-container">
-      <div className="card">
-        <div className="card-header">
-          <h2>📚 API Documentation</h2>
-          <button
-            type="button"
-            onClick={onBack}
-            className="btn btn-secondary btn-back"
-          >
-            ← Back to Dashboard
-          </button>
+      {/* Header Section */}
+      <div className="header-section">
+        <div className="docs-header-content">
+          <div className="header-title">
+            <Book size={24} />
+            <h1>API Documentation</h1>
+          </div>
+          <p className="header-subtitle">Complete guide to using the KV Store API</p>
         </div>
-        <div className="card-content">
-          <div className="tabs">
+        <button
+          type="button"
+          onClick={onBack}
+          className="btn btn-secondary"
+        >
+          <ArrowLeft size={16} />
+          Back to Dashboard
+        </button>
+      </div>
+      {/* Main Content */}
+      <div className="main-content-area">
+        <div className="content-card main-card">
+          <div className="docs-navigation">
             <button
               type="button"
-              className={`tab ${activeTab === "overview" ? "active" : ""}`}
+              className={`nav-tab ${activeTab === "overview" ? "active" : ""}`}
               onClick={() => setActiveTab("overview")}
             >
-              📋 Overview
+              <FileText size={16} />
+              Overview
             </button>
             <button
               type="button"
-              className={`tab ${activeTab === "sdk" ? "active" : ""}`}
+              className={`nav-tab ${activeTab === "sdk" ? "active" : ""}`}
               onClick={() => setActiveTab("sdk")}
             >
-              📦 JavaScript SDK
+              <Package size={16} />
+              JavaScript SDK
             </button>
             <button
               type="button"
-              className={`tab ${activeTab === "examples" ? "active" : ""}`}
+              className={`nav-tab ${activeTab === "examples" ? "active" : ""}`}
               onClick={() => setActiveTab("examples")}
             >
-              💡 Examples
+              <Lightbulb size={16} />
+              Examples
             </button>
           </div>
 
-          {activeTab === "overview" && (
-            <div className="tab-content">
-              <h3>API Overview</h3>
+          <div className="docs-content">
+
+            {activeTab === "overview" && (
+              <div className="docs-section">
+                <h3>API Overview</h3>
               <p>Our KV Store API uses a single endpoint for all operations:</p>
               <CodeBlock id="endpoint" language="http">
                 POST http://localhost:3001/api/connect
@@ -149,24 +164,24 @@ function ApiDocsView({ accessToken, onBack }) {
                   </ul>
                 </div>
               </div>
-            </div>
-          )}
+              </div>
+            )}
 
-          {activeTab === "sdk" && (
-            <div className="tab-content">
-              <h3>JavaScript SDK</h3>
+            {activeTab === "sdk" && (
+              <div className="docs-section">
+                <h3>JavaScript SDK</h3>
               <p>Use our JavaScript SDK for easy integration:</p>
 
               <h4>Installation</h4>
               <CodeBlock id="sdk-class" language="javascript">
                 {KVStoreSource}
               </CodeBlock>
-            </div>
-          )}
+              </div>
+            )}
 
-          {activeTab === "examples" && (
-            <div className="tab-content">
-              <h3>Usage Examples</h3>
+            {activeTab === "examples" && (
+              <div className="docs-section">
+                <h3>Usage Examples</h3>
 
               <h4>Basic Operations</h4>
               <CodeBlock id="basic-usage" language="javascript">
@@ -292,8 +307,9 @@ await db.update('config', {
   features: ['feature1', 'feature2', 'feature3']
 });`}
               </CodeBlock>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
