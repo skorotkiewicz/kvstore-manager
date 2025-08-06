@@ -52,68 +52,105 @@ function DashboardView({
   const totalStores = stores.length;
 
   return (
-    <div className="modern-dashboard fade-in">
-      {/* Key-Value Store Content - MAIN FOCUS */}
-      <div className="kv-main-section slide-up">
-        <div className="dashboard-card primary-card">
+    <div className="dashboard-container">
+      {/* Header Stats */}
+      <div className="stats-section">
+        <div className="stat-item">
+          <div className="stat-icon databases">
+            <Database size={24} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-number">{databases.length}</div>
+            <div className="stat-label">Databases</div>
+            <div className="stat-limit">{databases.length}/3</div>
+          </div>
+        </div>
+
+        <div className="stat-item">
+          <div className="stat-icon stores">
+            <HardDrive size={24} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-number">{totalStores}</div>
+            <div className="stat-label">Stores</div>
+            <div className="stat-status">
+              {selectedDb ? selectedDb : "Select database"}
+            </div>
+          </div>
+        </div>
+
+        <div className="stat-item">
+          <div className="stat-icon keys">
+            <Key size={24} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-number">{totalKeys}</div>
+            <div className="stat-label">Keys</div>
+            <div className="stat-status">
+              {selectedStore ? selectedStore : "Select store"}
+            </div>
+          </div>
+        </div>
+
+        {/* <div className="stat-item">
+          <div className="stat-icon status active">
+            <Activity size={24} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-number">Active</div>
+            <div className="stat-label">Status</div>
+            <div className="stat-status connected">Connected</div>
+          </div>
+        </div> */}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="main-content-area">
+        {/* Key-Value Store Section */}
+        <div className="content-card main-card">
           <div className="card-header">
             <div className="card-title">
-              <Key size={24} />
-              <div className="title-info">
-                <span className="title-main">
-                  {selectedStore
-                    ? `${selectedDb} / ${selectedStore}`
-                    : "Key-Value Store"}
-                </span>
-                {selectedStore && (
-                  <span className="title-subtitle">
-                    {totalKeys} keys stored
-                  </span>
-                )}
-              </div>
+              <Key size={20} />
+              <span>
+                {selectedStore
+                  ? `${selectedDb} / ${selectedStore}`
+                  : "Key-Value Store"}
+              </span>
             </div>
             {selectedStore && (
-              <div className="header-actions">
-                <div className="action-group">
-                  <span className="data-count">{totalKeys} items</span>
-                  <button
-                    type="button"
-                    onClick={onClearStore}
-                    className="btn-danger-sm hover-scale"
-                    title="Clear all data"
-                    disabled={isLoading}
-                  >
-                    <Trash2 size={16} />
-                    Clear Store
-                  </button>
-                </div>
+              <div className="card-actions">
+                <span className="items-count">{totalKeys} items</span>
+                <button
+                  type="button"
+                  onClick={onClearStore}
+                  className="btn btn-danger-sm"
+                  disabled={isLoading}
+                >
+                  <Trash2 size={16} />
+                  Clear Store
+                </button>
               </div>
             )}
           </div>
+
           <div className="card-content">
             {!selectedStore ? (
-              <div className="empty-state large">
-                <Key size={64} />
+              <div className="empty-state">
+                <Key size={48} />
                 <h3>Select a store to manage your data</h3>
                 <p>
-                  Choose a database and store from the controls below to start
-                  working with key-value pairs
+                  Choose a database and store from the management panels below
                 </p>
               </div>
             ) : (
-              <>
+              <div className="kv-section">
                 {/* Add Key-Value Form */}
-                <form
-                  onSubmit={handleSetKeyValue}
-                  className="kv-form primary glass-card"
-                >
+                <div className="kv-form">
                   <div className="form-header">
                     <h4>Add New Key-Value Pair</h4>
-                    <div className="form-subtitle">
-                      Store data in the selected store
-                    </div>
+                    <p>Store data in the selected store</p>
                   </div>
-                  <div className="form-grid">
+                  <form onSubmit={handleSetKeyValue} className="kv-form-grid">
                     <input
                       type="text"
                       value={newKey}
@@ -131,39 +168,31 @@ function DashboardView({
                     />
                     <button
                       type="submit"
-                      className={`btn-primary large hover-lift ${isLoading ? "loading" : ""}`}
+                      className="btn btn-primary"
                       disabled={isLoading}
                     >
                       <Plus size={18} />
-                      {isLoading ? "Adding..." : "Add"}
+                      Add
                     </button>
-                  </div>
-                </form>
+                  </form>
+                </div>
 
                 {/* Key-Value List */}
-                <div className="kv-list modern-scroll">
+                <div className="kv-list">
                   {Object.entries(storeData).length === 0 ? (
-                    <div className="empty-state modern-empty">
-                      <div className="empty-icon">
-                        <Key size={48} />
-                      </div>
-                      <h3>Store is empty</h3>
+                    <div className="empty-state small">
+                      <Key size={32} />
+                      <h4>Store is empty</h4>
                       <p>Add your first key-value pair to get started</p>
-                      <div className="empty-hint">
-                        💡 Use the form above to add data
-                      </div>
                     </div>
                   ) : (
-                    <div className="kv-grid">
+                    <div className="kv-items">
                       {Object.entries(storeData).map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="kv-item modern-item hover-lift"
-                        >
-                          <div className="kv-content">
-                            <div className="kv-key-wrapper">
-                              <Key size={16} className="key-icon" />
-                              <div className="kv-key">{key}</div>
+                        <div key={key} className="kv-item">
+                          <div className="kv-item-content">
+                            <div className="kv-key">
+                              <Key size={14} />
+                              <span>{key}</span>
                             </div>
                             <div className="kv-value">
                               <span className="value-type">{typeof value}</span>
@@ -175,102 +204,30 @@ function DashboardView({
                           <button
                             type="button"
                             onClick={() => onDeleteKey(key)}
-                            className="delete-btn-sm hover-scale"
-                            title="Delete key"
+                            className="btn btn-danger-xs"
                             disabled={isLoading}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={12} />
                           </button>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="stats-grid compact slide-up-delay">
-        <div className="stat-card compact modern-stat-card hover-lift">
-          <div className="stat-icon pulse">
-            <Database />
-          </div>
-          <div className="stat-content">
-            <h3>{databases.length}</h3>
-            <p>Databases</p>
-            <div className="stat-progress">
-              <div
-                className="progress-bar"
-                style={{ width: `${(databases.length / 3) * 100}%` }}
-              ></div>
-            </div>
-            <span className="stat-limit">/{3} max</span>
-          </div>
-        </div>
-
-        <div className="stat-card compact modern-stat-card hover-lift">
-          <div className="stat-icon pulse-delay-1">
-            <HardDrive />
-          </div>
-          <div className="stat-content">
-            <h3>{totalStores}</h3>
-            <p>Stores</p>
-            <div className="stat-status">
-              {selectedDb ? (
-                <span className="status-active">📂 {selectedDb}</span>
-              ) : (
-                <span className="status-inactive">⚪ Select database</span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-card compact modern-stat-card hover-lift">
-          <div className="stat-icon pulse-delay-2">
-            <Key />
-          </div>
-          <div className="stat-content">
-            <h3 className={totalKeys > 0 ? "text-success" : ""}>{totalKeys}</h3>
-            <p>Keys</p>
-            <div className="stat-status">
-              {selectedStore ? (
-                <span className="status-active">🗃️ {selectedStore}</span>
-              ) : (
-                <span className="status-inactive">⚪ Select store</span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-card compact modern-stat-card hover-lift">
-          <div className="stat-icon pulse-delay-3 status-active">
-            <Activity />
-          </div>
-          <div className="stat-content">
-            <h3 className="text-success">Active</h3>
-            <p>Status</p>
-            <div className="connection-status">
-              <div className="status-indicator"></div>
-              <span className="stat-status">Connected</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Management Controls */}
-      <div className="management-grid slide-up-delay-2">
-        {/* Databases Section */}
-        <div className="dashboard-card hover-lift">
+      {/* Management Section */}
+      <div className="management-section">
+        {/* Databases */}
+        <div className="content-card">
           <div className="card-header">
             <div className="card-title">
-              <Database size={20} />
+              <Database size={18} />
               <span>Databases ({databases.length}/3)</span>
-              {databases.length >= 3 && (
-                <span className="limit-badge">MAX</span>
-              )}
             </div>
             {databases.length < 3 && (
               <form onSubmit={handleCreateDatabase} className="inline-form">
@@ -281,56 +238,51 @@ function DashboardView({
                   placeholder="Database name"
                   className="form-input-sm"
                   required
-                  disabled={isLoading}
                 />
-                <button
-                  type="submit"
-                  className={`btn-primary-sm hover-scale ${isLoading ? "loading" : ""}`}
-                  disabled={isLoading}
-                >
-                  <Plus size={16} />
+                <button type="submit" className="btn btn-primary-sm">
+                  <Plus size={14} />
                 </button>
               </form>
             )}
           </div>
           <div className="card-content">
-            <div className="items-grid">
+            <div className="items-list">
               {databases.map((db) => (
                 <div
                   key={db}
-                  className={`item-card hover-lift ${selectedDb === db ? "active" : ""}`}
+                  className={`list-item ${selectedDb === db ? "active" : ""}`}
                   onClick={() => onSelectDatabase(db)}
                 >
                   <div className="item-content">
                     <Database size={16} />
-                    <span className="item-name">{db}</span>
-                    {selectedDb === db && (
-                      <span className="active-badge">✓</span>
-                    )}
+                    <span>{db}</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (
-                        window.confirm(
-                          `Are you sure you want to delete database "${db}"?`,
-                        )
-                      ) {
-                        onDeleteDatabase(db);
-                      }
-                    }}
-                    className="delete-btn-sm hover-scale"
-                    title="Delete database"
-                    disabled={isLoading}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="item-actions">
+                    {selectedDb === db && (
+                      <span className="active-badge">●</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (
+                          window.confirm(
+                            `Are you sure you want to delete database "${db}"?`,
+                          )
+                        ) {
+                          onDeleteDatabase(db);
+                        }
+                      }}
+                      className="btn btn-danger-xs"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {databases.length === 0 && (
-                <div className="empty-state">
-                  <Database size={32} />
+                <div className="empty-state small">
+                  <Database size={24} />
                   <p>No databases yet</p>
                 </div>
               )}
@@ -338,15 +290,12 @@ function DashboardView({
           </div>
         </div>
 
-        {/* Stores Section */}
-        <div className="dashboard-card hover-lift">
+        {/* Stores */}
+        <div className="content-card">
           <div className="card-header">
             <div className="card-title">
-              <HardDrive size={20} />
-              <span>
-                Stores{" "}
-                {selectedDb && <span className="db-badge">{selectedDb}</span>}
-              </span>
+              <HardDrive size={18} />
+              <span>Stores {selectedDb && `(${selectedDb})`}</span>
             </div>
             {selectedDb && (
               <form onSubmit={handleCreateStore} className="inline-form">
@@ -357,62 +306,57 @@ function DashboardView({
                   placeholder="Store name"
                   className="form-input-sm"
                   required
-                  disabled={isLoading}
                 />
-                <button
-                  type="submit"
-                  className={`btn-primary-sm hover-scale ${isLoading ? "loading" : ""}`}
-                  disabled={isLoading}
-                >
-                  <Plus size={16} />
+                <button type="submit" className="btn btn-primary-sm">
+                  <Plus size={14} />
                 </button>
               </form>
             )}
           </div>
           <div className="card-content">
             {!selectedDb ? (
-              <div className="empty-state">
-                <HardDrive size={32} />
+              <div className="empty-state small">
+                <HardDrive size={24} />
                 <p>Select a database first</p>
               </div>
             ) : (
-              <div className="items-grid">
+              <div className="items-list">
                 {stores.map((store) => (
                   <div
                     key={store}
-                    className={`item-card hover-lift ${selectedStore === store ? "active" : ""}`}
+                    className={`list-item ${selectedStore === store ? "active" : ""}`}
                     onClick={() => onSelectStore(selectedDb, store)}
                   >
                     <div className="item-content">
                       <HardDrive size={16} />
-                      <span className="item-name">{store}</span>
-                      {selectedStore === store && (
-                        <span className="active-badge">✓</span>
-                      )}
+                      <span>{store}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (
-                          window.confirm(
-                            `Are you sure you want to delete store "${store}"?`,
-                          )
-                        ) {
-                          onDeleteStore(selectedDb, store);
-                        }
-                      }}
-                      className="delete-btn-sm hover-scale"
-                      title="Delete store"
-                      disabled={isLoading}
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="item-actions">
+                      {selectedStore === store && (
+                        <span className="active-badge">●</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (
+                            window.confirm(
+                              `Are you sure you want to delete store "${store}"?`,
+                            )
+                          ) {
+                            onDeleteStore(selectedDb, store);
+                          }
+                        }}
+                        className="btn btn-danger-xs"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {stores.length === 0 && (
-                  <div className="empty-state">
-                    <HardDrive size={32} />
+                  <div className="empty-state small">
+                    <HardDrive size={24} />
                     <p>No stores yet</p>
                   </div>
                 )}
