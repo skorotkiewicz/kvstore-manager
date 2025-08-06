@@ -1,38 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import KVStoreSource from "../KVStore.js?raw";
+import { CodeBlock } from "./CodeBlock";
 
 function ApiDocsView({ accessToken, onBack }) {
   const [activeTab, setActiveTab] = useState("overview");
-  const [copiedCode, setCopiedCode] = useState(null);
-
-  const copyToClipboard = useCallback(async (text, id) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedCode(id);
-      setTimeout(() => setCopiedCode(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  }, []);
-
-  const CodeBlock = ({ children, id, language = "javascript" }) => (
-    <div className="code-block">
-      <div className="code-header">
-        <span className="code-language">{language}</span>
-        <button
-          type="button"
-          className={`copy-btn ${copiedCode === id ? "copied" : ""}`}
-          onClick={() => copyToClipboard(children, id)}
-          title="Copy to clipboard"
-        >
-          {copiedCode === id ? "✅ Copied!" : "📋 Copy"}
-        </button>
-      </div>
-      <pre>
-        <code>{children}</code>
-      </pre>
-    </div>
-  );
 
   return (
     <div className="api-docs-container">
