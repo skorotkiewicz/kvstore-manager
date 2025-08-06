@@ -40,6 +40,10 @@ export class KVStore {
     return await this._request("generate-token");
   }
 
+  async getUserInfo() {
+    return await this._request("get-user-info");
+  }
+
   async getDatabases() {
     return await this._request("get-databases");
   }

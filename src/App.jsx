@@ -36,8 +36,19 @@ function App() {
 
   useEffect(() => {
     if (accessToken) {
-      setCurrentView("dashboard");
-      loadDatabases();
+      (async () => {
+        try {
+          const result = await db.getUserInfo();
+          setUser(result.user);
+          setCurrentView("dashboard");
+          loadDatabases();
+        } catch (error) {
+          console.error("Auto-login failed:", error);
+          localStorage.removeItem("accessToken");
+          setAccessToken(null);
+          setCurrentView("login");
+        }
+      })();
     }
   }, [accessToken]);
 

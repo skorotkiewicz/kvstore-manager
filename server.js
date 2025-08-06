@@ -142,6 +142,8 @@ app.post("/api/connect", verifyToken, async (req, res) => {
         return await handleDeleteStore(req, res, params);
       case "delete-database":
         return await handleDeleteDatabase(req, res, params);
+      case "get-user-info":
+        return await handleGetUserInfo(req, res, params);
       default:
         return res.status(400).json({ error: "Invalid action" });
     }
@@ -220,7 +222,7 @@ async function handleGenerateToken(req, res, _params) {
 
   const [_email, user] = userEntry;
   const newToken = generateToken();
-  user.accessTokens.push(newToken);
+  user.accessTokens = [newToken];
 
   await writeUsers(users);
 
@@ -431,6 +433,16 @@ async function handleDeleteDatabase(req, res, { dbName }) {
     }
     throw error;
   }
+}
+
+async function handleGetUserInfo(req, res, _params) {
+  res.json({
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+    },
+  });
 }
 
 // Initialize database and start server
