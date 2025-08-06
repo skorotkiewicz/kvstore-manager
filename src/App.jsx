@@ -1,4 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
+import {
+  Menu,
+  X,
+  Database,
+  Settings,
+  FileText,
+  LogOut,
+  User,
+  Moon,
+  Sun,
+} from "lucide-react";
 import DashboardView from "./containers/DashboardView";
 import AuthView from "./containers/AuthView";
 import ApiDocsView from "./containers/ApiDocsView";
@@ -25,6 +36,10 @@ function App() {
   const [lastOperation, setLastOperation] = useState(null);
   const [showInfoBox, setShowInfoBox] = useState(false);
   const [captcha, setCaptcha] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") === "true",
+  );
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleReCaptchaVerify = useCallback(async () => {
@@ -33,6 +48,15 @@ function App() {
     const token = await executeRecaptcha();
     setCaptcha(token);
   }, [executeRecaptcha]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    localStorage.setItem("darkMode", !darkMode);
+  };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     if (
@@ -272,7 +296,7 @@ function App() {
 
   if (currentView === "front-page") {
     return (
-      <FrontPageView 
+      <FrontPageView
         onGetStarted={() => setCurrentView("login")}
         onLogin={() => setCurrentView("login")}
       />
@@ -281,8 +305,8 @@ function App() {
 
   if (currentView === "login") {
     return (
-      <AuthView 
-        onRegister={handleRegister} 
+      <AuthView
+        onRegister={handleRegister}
         onLogin={handleLogin}
         onBackToFrontPage={() => setCurrentView("front-page")}
       />
@@ -290,71 +314,129 @@ function App() {
   }
 
   return (
-    <div className="app" onClick={() => showInfoBox && setShowInfoBox(false)}>
-      <header className="header">
-        <div className="header-content">
-          <h1>KV Store Manager</h1>
-          <div className="header-actions">
-            <span>Welcome, {user?.username}!</span>
+    <div
+      className={`app ${darkMode ? "dark" : ""}`}
+      onClick={() => showInfoBox && setShowInfoBox(false)}
+    >
+      {/* Modern Sidebar */}
+      <aside className={`sidebar-nav ${sidebarOpen ? "open" : "closed"}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-brand">
+            <Database className="brand-icon" />
+            {sidebarOpen && <span className="brand-text">KV Store</span>}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="sidebar-toggle"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        <nav className="sidebar-menu">
+          <div className="menu-section">
+            <button
+              type="button"
+              onClick={() => setCurrentView("dashboard")}
+              className={`menu-item ${currentView === "dashboard" ? "active" : ""}`}
+            >
+              <Database size={20} />
+              {sidebarOpen && <span>Dashboard</span>}
+            </button>
             <button
               type="button"
               onClick={() => setCurrentView("api-docs")}
-              className="btn btn-secondary"
+              className={`menu-item ${currentView === "api-docs" ? "active" : ""}`}
             >
-              API Docs
+              <FileText size={20} />
+              {sidebarOpen && <span>API Docs</span>}
             </button>
             <button
               type="button"
               onClick={() => setCurrentView("settings")}
-              className="btn btn-secondary"
+              className={`menu-item ${currentView === "settings" ? "active" : ""}`}
             >
-              Settings
+              <Settings size={20} />
+              {sidebarOpen && <span>Settings</span>}
+            </button>
+          </div>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <div className="user-avatar">
+              <User size={16} />
+            </div>
+            {sidebarOpen && (
+              <div className="user-details">
+                <span className="username">{user?.username}</span>
+                <span className="user-role">Admin</span>
+              </div>
+            )}
+          </div>
+
+          <div className="footer-actions">
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="action-btn"
+              title="Toggle theme"
+            >
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="btn btn-secondary"
+              className="action-btn logout"
+              title="Logout"
             >
-              Logout
+              <LogOut size={16} />
             </button>
           </div>
         </div>
-      </header>
+      </aside>
 
-      <main className="main">
-        {currentView === "api-docs" && (
-          <ApiDocsView
-            accessToken={accessToken}
-            onBack={() => setCurrentView("dashboard")}
-          />
-        )}
-        {currentView === "settings" && (
-          <SettingsView
-            user={user}
-            accessToken={accessToken}
-            onGenerateToken={generateNewToken}
-            onBack={() => setCurrentView("dashboard")}
-          />
-        )}
+      {/* Main Content */}
+      <main
+        className={`main-content ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
+      >
+        <div className="content-wrapper">
+          {currentView === "api-docs" && (
+            <ApiDocsView
+              accessToken={accessToken}
+              onBack={() => setCurrentView("dashboard")}
+            />
+          )}
+          {currentView === "settings" && (
+            <SettingsView
+              user={user}
+              accessToken={accessToken}
+              onGenerateToken={generateNewToken}
+              onBack={() => setCurrentView("dashboard")}
+            />
+          )}
 
-        {currentView === "dashboard" && (
-          <DashboardView
-            databases={databases}
-            selectedDb={selectedDb}
-            stores={stores}
-            selectedStore={selectedStore}
-            storeData={storeData}
-            onCreateDatabase={createDatabase}
-            onSelectDatabase={loadStores}
-            onCreateStore={createStore}
-            onSelectStore={loadStoreData}
-            onSetKeyValue={setKeyValue}
-            onDeleteKey={deleteKey}
-            onClearStore={clearStore}
-            onDeleteStore={deleteStore}
-            onDeleteDatabase={deleteDatabase}
-          />
-        )}
+          {currentView === "dashboard" && (
+            <DashboardView
+              databases={databases}
+              selectedDb={selectedDb}
+              stores={stores}
+              selectedStore={selectedStore}
+              storeData={storeData}
+              onCreateDatabase={createDatabase}
+              onSelectDatabase={loadStores}
+              onCreateStore={createStore}
+              onSelectStore={loadStoreData}
+              onSetKeyValue={setKeyValue}
+              onDeleteKey={deleteKey}
+              onClearStore={clearStore}
+              onDeleteStore={deleteStore}
+              onDeleteDatabase={deleteDatabase}
+              darkMode={darkMode}
+            />
+          )}
+        </div>
       </main>
 
       {showInfoBox && (
