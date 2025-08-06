@@ -315,7 +315,7 @@ function DashboardView({
                 <Key size={48} />
                 <h3>Select a store to manage your data</h3>
                 <p>
-                  Choose a database and store from the management panels below
+                  Choose a database and store from the management panels above
                 </p>
               </div>
             ) : (

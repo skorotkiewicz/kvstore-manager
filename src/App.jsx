@@ -371,7 +371,8 @@ function App() {
             {sidebarOpen && (
               <div className="user-details">
                 <span className="username">{user?.username}</span>
-                <span className="user-role">Admin</span>
+                <span className="user-role">Member</span>
+                {/* <span className="user-role">Admin</span> */}
               </div>
             )}
           </div>

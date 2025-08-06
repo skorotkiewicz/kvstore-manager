@@ -10,21 +10,25 @@ function ApiDocsView({ accessToken, onBack }) {
     <div className="api-docs-container">
       {/* Header Section */}
       <div className="header-section">
+        <button
+          type="button"
+          onClick={onBack}
+          className="back-button"
+          style={{ marginBottom: "0rem" }}
+          // className="btn btn-secondary"
+        >
+          <ArrowLeft size={16} />
+          Back to Dashboard
+        </button>
         <div className="docs-header-content">
           <div className="header-title">
             <Book size={24} />
             <h1>API Documentation</h1>
           </div>
-          <p className="header-subtitle">Complete guide to using the KV Store API</p>
+          <p className="header-subtitle">
+            Complete guide to using the KV Store API
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="btn btn-secondary"
-        >
-          <ArrowLeft size={16} />
-          Back to Dashboard
-        </button>
       </div>
       {/* Main Content */}
       <div className="main-content-area">
@@ -57,125 +61,127 @@ function ApiDocsView({ accessToken, onBack }) {
           </div>
 
           <div className="docs-content">
-
             {activeTab === "overview" && (
               <div className="docs-section">
                 <h3>API Overview</h3>
-              <p>Our KV Store API uses a single endpoint for all operations:</p>
-              <CodeBlock id="endpoint" language="http">
-                POST http://localhost:3001/api/connect
-              </CodeBlock>
+                <p>
+                  Our KV Store API uses a single endpoint for all operations:
+                </p>
+                <CodeBlock id="endpoint" language="http">
+                  POST http://localhost:3001/api/connect
+                </CodeBlock>
 
-              <h4>Authentication</h4>
-              <p>Include your access token in the Authorization header:</p>
-              <CodeBlock id="auth" language="http">
-                Authorization: Bearer your-access-token
-              </CodeBlock>
+                <h4>Authentication</h4>
+                <p>Include your access token in the Authorization header:</p>
+                <CodeBlock id="auth" language="http">
+                  Authorization: Bearer your-access-token
+                </CodeBlock>
 
-              <h4>Request Format</h4>
-              <CodeBlock id="request-format" language="json">
-                {`{
+                <h4>Request Format</h4>
+                <CodeBlock id="request-format" language="json">
+                  {`{
   "action": "operation-name",
   "param1": "value1",
   "param2": "value2"
 }`}
-              </CodeBlock>
+                </CodeBlock>
 
-              <h4>Available Operations</h4>
-              <div className="operations-grid">
-                <div className="operation-category">
-                  <h5>Authentication & User Management</h5>
-                  <ul className="operation-list">
-                    <li>
-                      <strong>register</strong> - Register a new user
-                    </li>
-                    <li>
-                      <strong>login</strong> - Authenticate user
-                    </li>
-                    <li>
-                      <strong>generate-token</strong> - Generate access token
-                    </li>
-                    <li>
-                      <strong>get-user-info</strong> - Get current user
-                      information
-                    </li>
-                  </ul>
+                <h4>Available Operations</h4>
+                <div className="operations-grid">
+                  <div className="operation-category">
+                    <h5>Authentication & User Management</h5>
+                    <ul className="operation-list">
+                      <li>
+                        <strong>register</strong> - Register a new user
+                      </li>
+                      <li>
+                        <strong>login</strong> - Authenticate user
+                      </li>
+                      <li>
+                        <strong>generate-token</strong> - Generate access token
+                      </li>
+                      <li>
+                        <strong>get-user-info</strong> - Get current user
+                        information
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="operation-category">
+                    <h5>Database & Store Management</h5>
+                    <ul className="operation-list">
+                      <li>
+                        <strong>get-databases</strong> - List all databases
+                      </li>
+                      <li>
+                        <strong>create-database</strong> - Create a new database
+                      </li>
+                      <li>
+                        <strong>delete-database</strong> - Delete a database
+                      </li>
+                      <li>
+                        <strong>get-stores</strong> - List stores in a database
+                      </li>
+                      <li>
+                        <strong>create-store</strong> - Create a new store
+                      </li>
+                      <li>
+                        <strong>delete-store</strong> - Delete a store
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="operation-category">
+                    <h5>Key-Value Operations</h5>
+                    <ul className="operation-list">
+                      <li>
+                        <strong>set</strong> - Store a key-value pair
+                      </li>
+                      <li>
+                        <strong>get</strong> - Retrieve a value by key
+                      </li>
+                      <li>
+                        <strong>setMany</strong> - Store multiple key-value
+                        pairs
+                      </li>
+                      <li>
+                        <strong>getMany</strong> - Retrieve multiple values by
+                        keys
+                      </li>
+                      <li>
+                        <strong>update</strong> - Update an existing key
+                      </li>
+                      <li>
+                        <strong>delete</strong> - Delete a key
+                      </li>
+                      <li>
+                        <strong>deleteMany</strong> - Delete multiple keys
+                      </li>
+                      <li>
+                        <strong>entries</strong> - Get all key-value pairs
+                      </li>
+                      <li>
+                        <strong>keys</strong> - Get all keys
+                      </li>
+                      <li>
+                        <strong>values</strong> - Get all values
+                      </li>
+                      <li>
+                        <strong>clear</strong> - Clear all data in store
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="operation-category">
-                  <h5>Database & Store Management</h5>
-                  <ul className="operation-list">
-                    <li>
-                      <strong>get-databases</strong> - List all databases
-                    </li>
-                    <li>
-                      <strong>create-database</strong> - Create a new database
-                    </li>
-                    <li>
-                      <strong>delete-database</strong> - Delete a database
-                    </li>
-                    <li>
-                      <strong>get-stores</strong> - List stores in a database
-                    </li>
-                    <li>
-                      <strong>create-store</strong> - Create a new store
-                    </li>
-                    <li>
-                      <strong>delete-store</strong> - Delete a store
-                    </li>
-                  </ul>
-                </div>
-                <div className="operation-category">
-                  <h5>Key-Value Operations</h5>
-                  <ul className="operation-list">
-                    <li>
-                      <strong>set</strong> - Store a key-value pair
-                    </li>
-                    <li>
-                      <strong>get</strong> - Retrieve a value by key
-                    </li>
-                    <li>
-                      <strong>setMany</strong> - Store multiple key-value pairs
-                    </li>
-                    <li>
-                      <strong>getMany</strong> - Retrieve multiple values by
-                      keys
-                    </li>
-                    <li>
-                      <strong>update</strong> - Update an existing key
-                    </li>
-                    <li>
-                      <strong>delete</strong> - Delete a key
-                    </li>
-                    <li>
-                      <strong>deleteMany</strong> - Delete multiple keys
-                    </li>
-                    <li>
-                      <strong>entries</strong> - Get all key-value pairs
-                    </li>
-                    <li>
-                      <strong>keys</strong> - Get all keys
-                    </li>
-                    <li>
-                      <strong>values</strong> - Get all values
-                    </li>
-                    <li>
-                      <strong>clear</strong> - Clear all data in store
-                    </li>
-                  </ul>
-                </div>
-              </div>
               </div>
             )}
 
             {activeTab === "sdk" && (
               <div className="docs-section">
                 <h3>JavaScript SDK</h3>
-              <p>Use our JavaScript SDK for easy integration:</p>
+                <p>Use our JavaScript SDK for easy integration:</p>
 
-              <h4>Installation</h4>
-              <CodeBlock id="sdk-class" language="javascript">
-                {KVStoreSource}
-              </CodeBlock>
+                <h4>Installation</h4>
+                <CodeBlock id="sdk-class" language="javascript">
+                  {KVStoreSource}
+                </CodeBlock>
               </div>
             )}
 
@@ -183,9 +189,9 @@ function ApiDocsView({ accessToken, onBack }) {
               <div className="docs-section">
                 <h3>Usage Examples</h3>
 
-              <h4>Basic Operations</h4>
-              <CodeBlock id="basic-usage" language="javascript">
-                {`// Initialize the store
+                <h4>Basic Operations</h4>
+                <CodeBlock id="basic-usage" language="javascript">
+                  {`// Initialize the store
 const db = new KVStore('http://localhost:3001/api/connect', {
   accessToken: '${accessToken}',
   dbName: 'myDatabase',
@@ -223,22 +229,22 @@ await db.delete('key1');
 
 // Clear all data
 await db.clear();`}
-              </CodeBlock>
+                </CodeBlock>
 
-              <h4>Error Handling</h4>
-              <CodeBlock id="error-handling" language="javascript">
-                {`try {
+                <h4>Error Handling</h4>
+                <CodeBlock id="error-handling" language="javascript">
+                  {`try {
   await db.set('myKey', 'myValue');
   const value = await db.get('myKey');
   console.log('Success:', value);
 } catch (error) {
   console.error('Error:', error.message);
 }`}
-              </CodeBlock>
+                </CodeBlock>
 
-              <h4>Database & Store Management</h4>
-              <CodeBlock id="db-management" language="javascript">
-                {`// Get all databases
+                <h4>Database & Store Management</h4>
+                <CodeBlock id="db-management" language="javascript">
+                  {`// Get all databases
 const databases = await db.getDatabases();
 console.log(databases);
 
@@ -257,11 +263,11 @@ await db.deleteStore('myDatabase', 'oldStore');
 
 // Delete a database
 await db.deleteDatabase('oldDatabase');`}
-              </CodeBlock>
+                </CodeBlock>
 
-              <h4>Authentication Examples</h4>
-              <CodeBlock id="auth-examples" language="javascript">
-                {`// Register new user
+                <h4>Authentication Examples</h4>
+                <CodeBlock id="auth-examples" language="javascript">
+                  {`// Register new user
 const userData = {
   username: 'john_doe',
   password: 'secure_password',
@@ -283,11 +289,11 @@ console.log('New token:', tokenResult.token);
 // Get user information
 const userInfo = await db.getUserInfo();
 console.log('User:', userInfo);`}
-              </CodeBlock>
+                </CodeBlock>
 
-              <h4>Working with Complex Data</h4>
-              <CodeBlock id="complex-data" language="javascript">
-                {`// Store complex objects
+                <h4>Working with Complex Data</h4>
+                <CodeBlock id="complex-data" language="javascript">
+                  {`// Store complex objects
 await db.set('config', {
   theme: 'dark',
   language: 'en',
@@ -306,7 +312,7 @@ await db.update('config', {
   language: 'pl',
   features: ['feature1', 'feature2', 'feature3']
 });`}
-              </CodeBlock>
+                </CodeBlock>
               </div>
             )}
           </div>

@@ -10,6 +10,16 @@ export default function SettingsView({
     <div className="settings-container">
       {/* Header Section */}
       <div className="header-section">
+        <button
+          type="button"
+          onClick={onBack}
+          className="back-button"
+          style={{ marginBottom: "0rem" }}
+          // className="btn btn-secondary"
+        >
+          <ArrowLeft size={16} />
+          Back to Dashboard
+        </button>
         <div className="settings-header-content">
           <div className="header-title">
             <Settings size={24} />
@@ -17,10 +27,6 @@ export default function SettingsView({
           </div>
           <p className="header-subtitle">Manage your account and API access</p>
         </div>
-        <button type="button" onClick={onBack} className="btn btn-secondary">
-          <ArrowLeft size={16} />
-          Back to Dashboard
-        </button>
       </div>
       {/* Main Content */}
       <div className="main-content-area">
@@ -69,7 +75,8 @@ export default function SettingsView({
                   Generate New Token
                 </button>
                 <p className="token-info">
-                  Keep your token secure. It provides full access to your KV Store data.
+                  Keep your token secure. It provides full access to your KV
+                  Store data.
                 </p>
               </div>
             </div>
