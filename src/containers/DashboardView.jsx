@@ -53,55 +53,137 @@ function DashboardView({
 
   return (
     <div className="dashboard-container">
-      {/* Header Stats */}
-      <div className="stats-section">
-        <div className="stat-item">
-          <div className="stat-icon databases">
-            <Database size={24} />
+      {/* Header Stats & Quick Actions */}
+      <div className="header-section">
+        <div className="stats-section">
+          <div className="stat-item">
+            <div className="stat-icon databases">
+              <Database size={20} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-number">{databases.length}</div>
+              <div className="stat-label">Databases</div>
+            </div>
           </div>
-          <div className="stat-content">
-            <div className="stat-number">{databases.length}</div>
-            <div className="stat-label">Databases</div>
-            <div className="stat-limit">{databases.length}/3</div>
-          </div>
-        </div>
 
-        <div className="stat-item">
-          <div className="stat-icon stores">
-            <HardDrive size={24} />
+          <div className="stat-item">
+            <div className="stat-icon stores">
+              <HardDrive size={20} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-number">{totalStores}</div>
+              <div className="stat-label">Stores</div>
+            </div>
           </div>
-          <div className="stat-content">
-            <div className="stat-number">{totalStores}</div>
-            <div className="stat-label">Stores</div>
-            <div className="stat-status">
-              {selectedDb ? selectedDb : "Select database"}
+
+          <div className="stat-item">
+            <div className="stat-icon keys">
+              <Key size={20} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-number">{totalKeys}</div>
+              <div className="stat-label">Keys</div>
             </div>
           </div>
         </div>
 
-        <div className="stat-item">
-          <div className="stat-icon keys">
-            <Key size={24} />
+        {/* Quick Management Panel */}
+        <div className="quick-management">
+          {/* Database Selector */}
+          <div className="quick-selector">
+            <label className="selector-label">
+              <Database size={14} />
+              Database
+            </label>
+            <div className="selector-group">
+              <select
+                value={selectedDb || ""}
+                onChange={(e) => onSelectDatabase(e.target.value)}
+                className="quick-select"
+              >
+                <option value="">Select Database</option>
+                {databases.map((db) => (
+                  <option key={db} value={db}>
+                    {db}
+                  </option>
+                ))}
+              </select>
+              {databases.length < 3 && (
+                <div className="quick-add">
+                  <input
+                    type="text"
+                    value={newDbName}
+                    onChange={(e) => setNewDbName(e.target.value)}
+                    placeholder="New DB"
+                    className="quick-input"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleCreateDatabase(e);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateDatabase}
+                    className="quick-btn"
+                    disabled={!newDbName.trim() || isLoading}
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="stat-content">
-            <div className="stat-number">{totalKeys}</div>
-            <div className="stat-label">Keys</div>
-            <div className="stat-status">
-              {selectedStore ? selectedStore : "Select store"}
+
+          {/* Store Selector */}
+          <div className="quick-selector">
+            <label className="selector-label">
+              <HardDrive size={14} />
+              Store
+            </label>
+            <div className="selector-group">
+              <select
+                value={selectedStore || ""}
+                onChange={(e) =>
+                  selectedDb && onSelectStore(selectedDb, e.target.value)
+                }
+                className="quick-select"
+                disabled={!selectedDb}
+              >
+                <option value="">Select Store</option>
+                {stores.map((store) => (
+                  <option key={store} value={store}>
+                    {store}
+                  </option>
+                ))}
+              </select>
+              {selectedDb && (
+                <div className="quick-add">
+                  <input
+                    type="text"
+                    value={newStoreName}
+                    onChange={(e) => setNewStoreName(e.target.value)}
+                    placeholder="New Store"
+                    className="quick-input"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleCreateStore(e);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateStore}
+                    className="quick-btn"
+                    disabled={!newStoreName.trim() || isLoading}
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* <div className="stat-item">
-          <div className="stat-icon status active">
-            <Activity size={24} />
-          </div>
-          <div className="stat-content">
-            <div className="stat-number">Active</div>
-            <div className="stat-label">Status</div>
-            <div className="stat-status connected">Connected</div>
-          </div>
-        </div> */}
       </div>
 
       {/* Main Content Area */}
@@ -224,152 +306,6 @@ function DashboardView({
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Management Section */}
-      <div className="management-section">
-        {/* Databases */}
-        <div className="content-card">
-          <div className="card-header">
-            <div className="card-title">
-              <Database size={18} />
-              <span>Databases ({databases.length}/3)</span>
-            </div>
-            {databases.length < 3 && (
-              <form onSubmit={handleCreateDatabase} className="inline-form">
-                <input
-                  type="text"
-                  value={newDbName}
-                  onChange={(e) => setNewDbName(e.target.value)}
-                  placeholder="Database name"
-                  className="form-input-sm"
-                  required
-                />
-                <button type="submit" className="btn btn-primary-sm">
-                  <Plus size={14} />
-                </button>
-              </form>
-            )}
-          </div>
-          <div className="card-content">
-            <div className="items-list">
-              {databases.map((db) => (
-                <div
-                  key={db}
-                  className={`list-item ${selectedDb === db ? "active" : ""}`}
-                  onClick={() => onSelectDatabase(db)}
-                >
-                  <div className="item-content">
-                    <Database size={16} />
-                    <span>{db}</span>
-                  </div>
-                  <div className="item-actions">
-                    {selectedDb === db && (
-                      <span className="active-badge">●</span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (
-                          window.confirm(
-                            `Are you sure you want to delete database "${db}"?`,
-                          )
-                        ) {
-                          onDeleteDatabase(db);
-                        }
-                      }}
-                      className="btn btn-danger-xs"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {databases.length === 0 && (
-                <div className="empty-state small">
-                  <Database size={24} />
-                  <p>No databases yet</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Stores */}
-        <div className="content-card">
-          <div className="card-header">
-            <div className="card-title">
-              <HardDrive size={18} />
-              <span>Stores {selectedDb && `(${selectedDb})`}</span>
-            </div>
-            {selectedDb && (
-              <form onSubmit={handleCreateStore} className="inline-form">
-                <input
-                  type="text"
-                  value={newStoreName}
-                  onChange={(e) => setNewStoreName(e.target.value)}
-                  placeholder="Store name"
-                  className="form-input-sm"
-                  required
-                />
-                <button type="submit" className="btn btn-primary-sm">
-                  <Plus size={14} />
-                </button>
-              </form>
-            )}
-          </div>
-          <div className="card-content">
-            {!selectedDb ? (
-              <div className="empty-state small">
-                <HardDrive size={24} />
-                <p>Select a database first</p>
-              </div>
-            ) : (
-              <div className="items-list">
-                {stores.map((store) => (
-                  <div
-                    key={store}
-                    className={`list-item ${selectedStore === store ? "active" : ""}`}
-                    onClick={() => onSelectStore(selectedDb, store)}
-                  >
-                    <div className="item-content">
-                      <HardDrive size={16} />
-                      <span>{store}</span>
-                    </div>
-                    <div className="item-actions">
-                      {selectedStore === store && (
-                        <span className="active-badge">●</span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (
-                            window.confirm(
-                              `Are you sure you want to delete store "${store}"?`,
-                            )
-                          ) {
-                            onDeleteStore(selectedDb, store);
-                          }
-                        }}
-                        className="btn btn-danger-xs"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {stores.length === 0 && (
-                  <div className="empty-state small">
-                    <HardDrive size={24} />
-                    <p>No stores yet</p>
-                  </div>
-                )}
               </div>
             )}
           </div>
