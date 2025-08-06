@@ -150,10 +150,9 @@ function App() {
   const loadStoreData = async (dbName, storeName) => {
     try {
       const result = await db.entries(dbName, storeName);
-
       const entriesObj = {};
+
       result.map(([key, value]) => {
-        // result.entries.
         entriesObj[key] = value;
       });
 
