@@ -5,9 +5,16 @@ import { serve } from "@hono/node-server";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 const app = new Hono();
 const PORT = 3001;
+
+// 10 requests per minute
+const rateLimiter = new RateLimiterMemory({
+  points: 10,
+  duration: 60,
+});
 
 // Middleware
 app.use(
@@ -102,6 +109,22 @@ async function verifyToken(c, next) {
 // Single API endpoint for all operations
 app.post("/api/connect", verifyToken, async (c) => {
   try {
+    /**
+     * Limiter to prevent abuse of the API.
+     */
+    try {
+      const user = c.get("user");
+      if (user?.id) await rateLimiter.consume(user.id, 1);
+    } catch {
+      return c.json(
+        {
+          error:
+            "429 Too Many Requests - your IP is being rate limited, try again in 1 hour",
+        },
+        429,
+      );
+    }
+
     const body = await c.req.json();
     const { action, ...params } = body;
 
