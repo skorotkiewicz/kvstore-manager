@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function AuthView({ onRegister, onLogin }) {
+function AuthView({ onRegister, onLogin, onBackToFrontPage }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: "",
@@ -27,6 +27,15 @@ function AuthView({ onRegister, onLogin }) {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        {onBackToFrontPage && (
+          <button
+            type="button"
+            className="back-btn"
+            onClick={onBackToFrontPage}
+          >
+            ← Back to Home
+          </button>
+        )}
         <h2>{isLogin ? "Login" : "Register"}</h2>
         <form onSubmit={handleSubmit}>
           {!isLogin && (

@@ -3,6 +3,7 @@ import DashboardView from "./containers/DashboardView";
 import AuthView from "./containers/AuthView";
 import ApiDocsView from "./containers/ApiDocsView";
 import SettingsView from "./containers/SettingsView";
+import FrontPageView from "./containers/FrontPageView";
 import InfoBox from "./containers/InfoBox";
 import { KVStore } from "./KVStore";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
@@ -11,7 +12,7 @@ import "./App.css";
 const API_BASE_URL = "http://localhost:3001/api";
 
 function App() {
-  const [currentView, setCurrentView] = useState("login");
+  const [currentView, setCurrentView] = useState("front-page");
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("accessToken"),
@@ -269,8 +270,23 @@ function App() {
     }
   };
 
+  if (currentView === "front-page") {
+    return (
+      <FrontPageView 
+        onGetStarted={() => setCurrentView("login")}
+        onLogin={() => setCurrentView("login")}
+      />
+    );
+  }
+
   if (currentView === "login") {
-    return <AuthView onRegister={handleRegister} onLogin={handleLogin} />;
+    return (
+      <AuthView 
+        onRegister={handleRegister} 
+        onLogin={handleLogin}
+        onBackToFrontPage={() => setCurrentView("front-page")}
+      />
+    );
   }
 
   return (
