@@ -6,6 +6,8 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { RateLimiterMemory } from "rate-limiter-flexible";
+import { env } from "hono/adapter";
+import "dotenv/config";
 
 const app = new Hono();
 const PORT = 3001;
@@ -106,6 +108,31 @@ async function verifyToken(c, next) {
   await next();
 }
 
+export const verifyCaptcha = async (c, captcha) => {
+  const { CAPTCHA_SECRET_KEY, VITE_CAPTCHA_ENABLED } = env(c);
+
+  if (VITE_CAPTCHA_ENABLED !== "true") return true;
+
+  if (!captcha) {
+    return c.json({ error: "Please complete the CAPTCHA" }, 400);
+  }
+
+  try {
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CAPTCHA_SECRET_KEY}&response=${captcha}`;
+    const response = await fetch(verifyUrl, { method: "POST" });
+    const data = await response.json();
+
+    if (data.success) {
+      // await next();
+      return true;
+    } else {
+      return c.json({ error: "CAPTCHA verification failed" }, 400);
+    }
+  } catch (_err) {
+    return c.json({ error: "CAPTCHA verification error" }, 500);
+  }
+};
+
 // Single API endpoint for all operations
 app.post("/api/connect", verifyToken, async (c) => {
   try {
@@ -181,7 +208,12 @@ app.post("/api/connect", verifyToken, async (c) => {
 });
 
 // Handler functions
-async function handleRegister(c, { username, email, password }) {
+async function handleRegister(c, { username, email, password, captcha }) {
+  const isCaptcha = await verifyCaptcha(c, captcha);
+  if (isCaptcha !== true) {
+    return c.json({ error: "CAPTCHA verification failed" }, 400);
+  }
+
   if (!username || !email || !password) {
     return c.json({ error: "Missing required fields" }, 400);
   }
@@ -214,7 +246,12 @@ async function handleRegister(c, { username, email, password }) {
   });
 }
 
-async function handleLogin(c, { email, password }) {
+async function handleLogin(c, { email, password, captcha }) {
+  const isCaptcha = await verifyCaptcha(c, captcha);
+  if (isCaptcha !== true) {
+    return c.json({ error: "CAPTCHA verification failed" }, 400);
+  }
+
   const users = await readUsers();
   const user = users[email];
 

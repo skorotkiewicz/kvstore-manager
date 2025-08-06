@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DashboardView from "./containers/DashboardView";
 import AuthView from "./containers/AuthView";
 import ApiDocsView from "./containers/ApiDocsView";
 import SettingsView from "./containers/SettingsView";
 import InfoBox from "./containers/InfoBox";
 import { KVStore } from "./KVStore";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
 
 const API_BASE_URL = "http://localhost:3001/api";
@@ -22,6 +23,24 @@ function App() {
   const [storeData, setStoreData] = useState({});
   const [lastOperation, setLastOperation] = useState(null);
   const [showInfoBox, setShowInfoBox] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) return;
+
+    const token = await executeRecaptcha();
+    setCaptcha(token);
+  }, [executeRecaptcha]);
+
+  useEffect(() => {
+    if (
+      import.meta.env.VITE_CAPTCHA_ENABLED === "true" &&
+      currentView === "login"
+    ) {
+      handleReCaptchaVerify();
+    }
+  }, [handleReCaptchaVerify]);
 
   const db = new KVStore(`${API_BASE_URL}/connect`, {
     accessToken,
@@ -54,6 +73,7 @@ function App() {
 
   const handleRegister = async (formData) => {
     try {
+      formData.captcha = captcha;
       const result = await db.register(formData);
 
       setUser(result.user);
@@ -67,6 +87,7 @@ function App() {
 
   const handleLogin = async (formData) => {
     try {
+      formData.captcha = captcha;
       const result = await db.login(formData);
 
       setUser(result.user);
