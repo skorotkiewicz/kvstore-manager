@@ -9,7 +9,6 @@ function InfoBox({
   const { baseUrl, accessToken } = configs;
 
   const generateCurlExample = () => {
-    // const baseUrl = "http://localhost:3001/api";
     const headers = `-H "Content-Type: application/json" -H "Authorization: Bearer ${accessToken}"`;
 
     switch (lastOperation.type) {

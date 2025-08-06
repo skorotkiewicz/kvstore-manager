@@ -243,7 +243,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" onClick={() => showInfoBox && setShowInfoBox(false)}>
       <header className="header">
         <div className="header-content">
           <h1>KV Store Manager</h1>
@@ -315,7 +315,7 @@ function App() {
           lastOperation={lastOperation}
           selectedDb={selectedDb}
           selectedStore={selectedStore}
-          configs={{ baseUrl: API_BASE_URL, accessToken }}
+          configs={{ baseUrl: `${API_BASE_URL}/connect`, accessToken }}
           onClose={() => setShowInfoBox(false)}
         />
       )}
