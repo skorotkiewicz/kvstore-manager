@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Plus, Database, HardDrive, Key, Trash2, Activity } from "lucide-react";
+import {
+  Plus,
+  Database,
+  HardDrive,
+  Key,
+  Trash2,
+  Edit3,
+  Check,
+  X,
+} from "lucide-react";
 
 function DashboardView({
   databases,
@@ -21,7 +30,10 @@ function DashboardView({
   const [newStoreName, setNewStoreName] = useState("");
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [editingKey, setEditingKey] = useState(null);
+  const [editKey, setEditKey] = useState("");
+  const [editValue, setEditValue] = useState("");
+  const [isLoading, _setIsLoading] = useState(false);
 
   const handleCreateDatabase = (e) => {
     e.preventDefault();
@@ -46,6 +58,50 @@ function DashboardView({
       setNewKey("");
       setNewValue("");
     }
+  };
+
+  const handleEditClick = (key, value) => {
+    setEditingKey(key);
+    setEditKey(key);
+    setEditValue(typeof value === "string" ? value : JSON.stringify(value));
+  };
+
+  const handleEditSave = (originalKey) => {
+    if (editKey.trim()) {
+      // If key changed, delete old key and set new one
+      if (editKey !== originalKey) {
+        onDeleteKey(originalKey);
+      }
+
+      // Try to parse value as JSON, fallback to string
+      let processedValue = editValue;
+      try {
+        // Only parse if it looks like JSON (starts with {, [, or is a number/boolean)
+        if (
+          editValue.startsWith("{") ||
+          editValue.startsWith("[") ||
+          editValue === "true" ||
+          editValue === "false" ||
+          (!Number.isNaN(editValue) && editValue.trim() !== "")
+        ) {
+          processedValue = JSON.parse(editValue);
+        }
+      } catch (_e) {
+        // Keep as string if JSON parsing fails
+        processedValue = editValue;
+      }
+
+      onSetKeyValue(editKey.trim(), processedValue);
+      setEditingKey(null);
+      setEditKey("");
+      setEditValue("");
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditingKey(null);
+    setEditKey("");
+    setEditValue("");
   };
 
   const totalKeys = Object.keys(storeData).length;
@@ -108,6 +164,25 @@ function DashboardView({
                   </option>
                 ))}
               </select>
+              {selectedDb && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Are you sure you want to delete database "${selectedDb}"? This will remove all stores and data.`,
+                      )
+                    ) {
+                      onDeleteDatabase(selectedDb);
+                    }
+                  }}
+                  className="quick-btn danger"
+                  disabled={isLoading}
+                  title={`Delete database ${selectedDb}`}
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
               {databases.length < 3 && (
                 <div className="quick-add">
                   <input
@@ -157,6 +232,25 @@ function DashboardView({
                   </option>
                 ))}
               </select>
+              {selectedStore && selectedDb && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Are you sure you want to delete store "${selectedStore}"? This will remove all data in this store.`,
+                      )
+                    ) {
+                      onDeleteStore(selectedDb, selectedStore);
+                    }
+                  }}
+                  className="quick-btn danger"
+                  disabled={isLoading}
+                  title={`Delete store ${selectedStore}`}
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
               {selectedDb && (
                 <div className="quick-add">
                   <input
@@ -228,10 +322,10 @@ function DashboardView({
               <div className="kv-section">
                 {/* Add Key-Value Form */}
                 <div className="kv-form">
-                  <div className="form-header">
+                  {/* <div className="form-header">
                     <h4>Add New Key-Value Pair</h4>
                     <p>Store data in the selected store</p>
-                  </div>
+                  </div> */}
                   <form onSubmit={handleSetKeyValue} className="kv-form-grid">
                     <input
                       type="text"
@@ -272,33 +366,122 @@ function DashboardView({
                       <div className="json-brace">{"{"}</div>
                       {Object.entries(storeData).map(
                         ([key, value], index, array) => (
-                          <div key={key} className="json-line">
-                            <div className="json-entry">
-                              <span className="json-key">"{key}"</span>
-                              <span className="json-colon">: </span>
-                              <span
-                                className={`json-value json-${typeof value}`}
-                              >
-                                {typeof value === "string"
-                                  ? `"${value}"`
-                                  : JSON.stringify(value)}
-                              </span>
-                              {index < array.length - 1 && (
-                                <span className="json-comma">,</span>
-                              )}
-                              <span className="json-type-badge">
-                                {typeof value}
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => onDeleteKey(key)}
-                              className="json-delete-btn"
-                              disabled={isLoading}
-                              title={`Delete ${key}`}
-                            >
-                              <Trash2 size={12} />
-                            </button>
+                          <div
+                            key={key}
+                            className={`json-line ${editingKey === key ? "editing" : ""}`}
+                          >
+                            {editingKey === key ? (
+                              // Edit mode
+                              <div className="json-entry-edit">
+                                <div className="edit-inputs">
+                                  <input
+                                    type="text"
+                                    value={editKey}
+                                    onChange={(e) => setEditKey(e.target.value)}
+                                    className="edit-key-input"
+                                    placeholder="Key"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleEditSave(key);
+                                      } else if (e.key === "Escape") {
+                                        handleEditCancel();
+                                      }
+                                    }}
+                                  />
+                                  <span className="json-colon">: </span>
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) =>
+                                      setEditValue(e.target.value)
+                                    }
+                                    className="edit-value-input"
+                                    placeholder="Value"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleEditSave(key);
+                                      } else if (e.key === "Escape") {
+                                        handleEditCancel();
+                                      }
+                                    }}
+                                  />
+                                  {/* {index < array.length - 1 && (
+                                    <span className="json-comma">,</span>
+                                  )} */}
+                                </div>
+                                <div className="edit-actions">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEditSave(key)}
+                                    className="json-save-btn"
+                                    disabled={isLoading}
+                                    title="Save changes"
+                                  >
+                                    <Check size={12} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleEditCancel}
+                                    className="json-cancel-btn"
+                                    disabled={isLoading}
+                                    title="Cancel editing"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              // View mode
+                              <>
+                                <div
+                                  className="json-entry"
+                                  onClick={() => handleEditClick(key, value)}
+                                  title="Click to edit"
+                                >
+                                  <span className="json-key">"{key}"</span>
+                                  <span className="json-colon">: </span>
+                                  <span
+                                    className={`json-value json-${typeof value}`}
+                                  >
+                                    {typeof value === "string"
+                                      ? `"${value}"`
+                                      : JSON.stringify(value)}
+                                  </span>
+                                  {index < array.length - 1 && (
+                                    <span className="json-comma">,</span>
+                                  )}
+                                  <span className="json-type-badge">
+                                    {typeof value}
+                                  </span>
+                                </div>
+                                <div className="json-actions">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditClick(key, value);
+                                    }}
+                                    className="json-edit-btn"
+                                    disabled={isLoading}
+                                    title={`Edit ${key}`}
+                                  >
+                                    <Edit3 size={12} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onDeleteKey(key);
+                                    }}
+                                    className="json-delete-btn"
+                                    disabled={isLoading}
+                                    title={`Delete ${key}`}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ),
                       )}

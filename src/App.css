@@ -3252,7 +3252,7 @@ button:disabled:hover {
 
 .json-comma {
   color: #94a3b8;
-  margin-left: 0.25rem;
+  /* margin-left: 0.25rem; */
 }
 
 .json-type-badge {
@@ -3302,6 +3302,135 @@ button:disabled:hover {
 .json-delete-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* JSON Editing Functionality */
+.json-line.editing {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.json-entry {
+  cursor: pointer;
+}
+
+.json-entry:hover {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 4px;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+
+.json-entry-edit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.edit-inputs {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.edit-key-input,
+.edit-value-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Consolas", monospace;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.edit-key-input {
+  color: #60a5fa;
+  min-width: 80px;
+}
+
+.edit-value-input {
+  color: #34d399;
+  flex: 1;
+  min-width: 100px;
+}
+
+.edit-key-input:focus,
+.edit-value-input:focus {
+  border-color: var(--accent-hover);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.json-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.json-line:hover .json-actions {
+  opacity: 1;
+}
+
+.json-edit-btn,
+.json-save-btn,
+.json-cancel-btn {
+  background: rgba(59, 130, 246, 0.8);
+  color: white;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+}
+
+.json-edit-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+.json-save-btn {
+  background: rgba(16, 185, 129, 0.8);
+}
+
+.json-save-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: scale(1.1);
+}
+
+.json-cancel-btn {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+.json-cancel-btn:hover:not(:disabled) {
+  background: #6b7280;
+  transform: scale(1.1);
+}
+
+.json-edit-btn:disabled,
+.json-save-btn:disabled,
+.json-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Management Section */

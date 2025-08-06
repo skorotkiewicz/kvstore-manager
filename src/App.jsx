@@ -38,7 +38,7 @@ function App() {
   const [captcha, setCaptcha] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") === "true",
+    localStorage.getItem("darkMode") === "true" || true,
   );
   const { executeRecaptcha } = useGoogleReCaptcha();
 
