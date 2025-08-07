@@ -17,6 +17,7 @@ import SettingsView from "./containers/SettingsView";
 import FrontPageView from "./containers/FrontPageView";
 // import InfoBox from "./containers/InfoBox";
 import StoreEditor from "./containers/StoreEditor";
+import PopUp from "./containers/PopUp";
 import { KVStore } from "./KVStore";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
@@ -42,7 +43,20 @@ function App() {
     localStorage.getItem("darkMode") === "true" || true,
   );
   const [showStoreEditor, setShowStoreEditor] = useState(false);
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "info",
+  });
   const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const showPopup = (message, type = "info") => {
+    setPopup({ show: true, message, type });
+  };
+
+  const closePopup = () => {
+    setPopup({ show: false, message: "", type: "info" });
+  };
 
   const handleReCaptchaVerify = useCallback(async () => {
     if (!executeRecaptcha) return;
@@ -107,9 +121,9 @@ function App() {
       setUser(result.user);
       setAccessToken(result.accessToken);
       localStorage.setItem("accessToken", result.accessToken);
-      alert("Registration successful!");
+      showPopup("Registration successful!", "success");
     } catch (error) {
-      alert(`Registration failed: ${error.message}`);
+      showPopup(`Registration failed: ${error.message}`, "error");
     }
   };
 
@@ -122,7 +136,7 @@ function App() {
       setAccessToken(result.accessToken);
       localStorage.setItem("accessToken", result.accessToken);
     } catch (error) {
-      alert(`Login failed: ${error.message}`);
+      showPopup(`Login failed: ${error.message}`, "error");
     }
   };
 
@@ -143,9 +157,9 @@ function App() {
       const result = await db.generateToken();
       setAccessToken(result.accessToken);
       localStorage.setItem("accessToken", result.accessToken);
-      alert("New access token generated!");
+      showPopup("New access token generated!", "success");
     } catch (error) {
-      alert(`Failed to generate token: ${error.message}`);
+      showPopup(`Failed to generate token: ${error.message}`, "error");
     }
   };
 
@@ -165,9 +179,9 @@ function App() {
       prevAction("create-database", { name }, true);
 
       loadDatabases();
-      alert("Database created successfully!");
+      showPopup("Database created successfully!", "success");
     } catch (error) {
-      alert(`Failed to create database: ${error.message}`);
+      showPopup(`Failed to create database: ${error.message}`, "error");
     }
   };
 
@@ -190,9 +204,9 @@ function App() {
       prevAction("create-store", { dbName, storeName }, true);
 
       loadStores(dbName);
-      alert("Store created successfully!");
+      showPopup("Store created successfully!", "success");
     } catch (error) {
-      alert(`Failed to create store: ${error.message}`);
+      showPopup(`Failed to create store: ${error.message}`, "error");
     }
   };
 
@@ -223,7 +237,7 @@ function App() {
 
       loadStoreData(selectedDb, selectedStore);
     } catch (error) {
-      alert(`Failed to set key: ${error.message}`);
+      showPopup(`Failed to set key: ${error.message}`, "error");
     }
   };
 
@@ -238,7 +252,7 @@ function App() {
 
       loadStoreData(selectedDb, selectedStore);
     } catch (error) {
-      alert(`Failed to delete key: ${error.message}`);
+      showPopup(`Failed to delete key: ${error.message}`, "error");
     }
   };
 
@@ -256,7 +270,7 @@ function App() {
 
         loadStoreData(selectedDb, selectedStore);
       } catch (error) {
-        alert(`Failed to clear store: ${error.message}`);
+        showPopup(`Failed to clear store: ${error.message}`, "error");
       }
     }
   };
@@ -272,9 +286,9 @@ function App() {
       }
 
       loadStores(dbName);
-      alert("Store deleted successfully!");
+      showPopup("Store deleted successfully!", "success");
     } catch (error) {
-      alert(`Failed to delete store: ${error.message}`);
+      showPopup(`Failed to delete store: ${error.message}`, "error");
     }
   };
 
@@ -291,9 +305,9 @@ function App() {
       }
 
       loadDatabases();
-      alert("Database deleted successfully!");
+      showPopup("Database deleted successfully!", "success");
     } catch (error) {
-      alert(`Failed to delete database: ${error.message}`);
+      showPopup(`Failed to delete database: ${error.message}`, "error");
     }
   };
 
@@ -319,9 +333,9 @@ function App() {
 
       // Reload the store data
       loadStoreData(selectedDb, selectedStore);
-      alert("Store updated successfully!");
+      showPopup("Store updated successfully!", "success");
     } catch (error) {
-      alert(`Failed to update store: ${error.message}`);
+      showPopup(`Failed to update store: ${error.message}`, "error");
     }
   };
 
@@ -495,6 +509,13 @@ function App() {
           darkMode={darkMode}
         />
       )}
+
+      <PopUp
+        show={popup.show}
+        message={popup.message}
+        type={popup.type}
+        onClose={closePopup}
+      />
     </div>
   );
 }
