@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Database,
   ArrowLeft,
@@ -9,8 +9,16 @@ import {
   EyeOff,
   Shield,
 } from "lucide-react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-function AuthView({ onRegister, onLogin, onBackToFrontPage, isGetStarted }) {
+function AuthView({
+  onRegister,
+  onLogin,
+  onBackToFrontPage,
+  isGetStarted,
+  setCaptcha,
+  currentView,
+}) {
   const [isLogin, setIsLogin] = useState(!isGetStarted);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,6 +26,23 @@ function AuthView({ onRegister, onLogin, onBackToFrontPage, isGetStarted }) {
     email: "",
     password: "",
   });
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) return;
+
+    const token = await executeRecaptcha();
+    setCaptcha(token);
+  }, [executeRecaptcha]);
+
+  useEffect(() => {
+    if (
+      import.meta.env.VITE_CAPTCHA_ENABLED === "true" &&
+      currentView === "login"
+    ) {
+      handleReCaptchaVerify();
+    }
+  }, [handleReCaptchaVerify]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

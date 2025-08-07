@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -21,7 +21,6 @@ import PopUp from "./containers/PopUp";
 import ConfirmDialog from "./containers/ConfirmDialog";
 // import { KVStore } from "./KVStore";
 import { KVStore } from "kvstore-client";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
 
 const API_BASE_URL = "/api";
@@ -57,7 +56,6 @@ function App() {
     message: "",
     onConfirm: null,
   });
-  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const showPopup = (message, type = "info") => {
     setPopup({ show: true, message, type });
@@ -75,13 +73,6 @@ function App() {
     setConfirmDialog({ show: false, title: "", message: "", onConfirm: null });
   };
 
-  const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha) return;
-
-    const token = await executeRecaptcha();
-    setCaptcha(token);
-  }, [executeRecaptcha]);
-
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("darkMode", !darkMode);
@@ -90,15 +81,6 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
-
-  useEffect(() => {
-    if (
-      import.meta.env.VITE_CAPTCHA_ENABLED === "true" &&
-      currentView === "login"
-    ) {
-      handleReCaptchaVerify();
-    }
-  }, [handleReCaptchaVerify]);
 
   const db = new KVStore(`${API_BASE_URL}/connect`, {
     accessToken,
@@ -381,6 +363,8 @@ function App() {
         onLogin={handleLogin}
         onBackToFrontPage={() => setCurrentView("front-page")}
         isGetStarted={isGetStarted}
+        setCaptcha={setCaptcha}
+        currentView={currentView}
       />
     );
   }
