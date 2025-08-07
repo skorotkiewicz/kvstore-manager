@@ -19,7 +19,8 @@ import FrontPageView from "./containers/FrontPageView";
 import StoreEditor from "./containers/StoreEditor";
 import PopUp from "./containers/PopUp";
 import ConfirmDialog from "./containers/ConfirmDialog";
-import { KVStore } from "./KVStore";
+// import { KVStore } from "./KVStore";
+import { KVStore } from "kvstore-client";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
 
