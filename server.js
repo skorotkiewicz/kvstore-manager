@@ -101,6 +101,10 @@ app.post("/api/connect", verifyToken, async (c) => {
         return await handleDeleteDatabase(c, params);
       case "get-user-info":
         return await handleGetUserInfo(c, params);
+      case "change-password":
+        return await handleChangePassword(c, params);
+      case "delete-account":
+        return await handleDeleteAccount(c, params);
       default:
         return c.json({ error: "Invalid action" }, 400);
     }
@@ -418,6 +422,100 @@ async function handleGetUserInfo(c, _params) {
       username: user.username,
       email: user.email,
     },
+  });
+}
+
+async function handleChangePassword(c, { currentPassword, newPassword }) {
+  if (!currentPassword || !newPassword) {
+    return c.json(
+      { error: "Current password and new password are required" },
+      400,
+    );
+  }
+
+  if (newPassword.length < 6) {
+    return c.json(
+      { error: "New password must be at least 6 characters long" },
+      400,
+    );
+  }
+
+  const user = c.get("user");
+  const users = await readUsers();
+
+  const userEmail = Object.keys(users).find(
+    (email) => users[email].id === user.id,
+  );
+  if (!userEmail) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  const userData = users[userEmail];
+
+  if (userData.password !== hashPassword(currentPassword)) {
+    return c.json({ error: "Current password is incorrect" }, 400);
+  }
+
+  userData.password = hashPassword(newPassword);
+  userData.updatedAt = new Date().toISOString();
+
+  await writeUsers(users);
+
+  return c.json({
+    success: true,
+    message: "Password changed successfully",
+  });
+}
+
+async function handleDeleteAccount(c, { password, confirmation }) {
+  if (!password) {
+    return c.json({ error: "Password is required to delete account" }, 400);
+  }
+
+  if (!confirmation) {
+    return c.json({ error: "Confirmation field is required" }, 400);
+  }
+
+  const expectedText = "DELETE MY ACCOUNT";
+
+  if (confirmation !== expectedText) {
+    return c.json(
+      {
+        error: `Confirmation field must contain exactly: "${expectedText}"`,
+      },
+      400,
+    );
+  }
+
+  const user = c.get("user");
+  const users = await readUsers();
+
+  const userEmail = Object.keys(users).find(
+    (email) => users[email].id === user.id,
+  );
+  if (!userEmail) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  const userData = users[userEmail];
+
+  if (userData.password !== hashPassword(password)) {
+    return c.json({ error: "Password is incorrect" }, 400);
+  }
+
+  try {
+    const userDataPath = path.join(DB_PATH, user.id);
+    await fs.rm(userDataPath, { recursive: true, force: true });
+  } catch (error) {
+    console.warn(`Failed to delete user data directory: ${error.message}`);
+  }
+
+  delete users[userEmail];
+  await writeUsers(users);
+
+  return c.json({
+    success: true,
+    message: "Account deleted successfully",
   });
 }
 

@@ -123,6 +123,17 @@ export class KVStore {
   async deleteDatabase(dbName) {
     return await this._request("delete-database", { dbName });
   }
+
+  async changePassword(currentPassword, newPassword) {
+    return await this._request("change-password", {
+      currentPassword,
+      newPassword,
+    });
+  }
+
+  async deleteAccount(password, confirmation) {
+    return await this._request("delete-account", { password, confirmation });
+  }
 }
 
 // Factory function

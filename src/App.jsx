@@ -445,6 +445,8 @@ function App() {
               user={user}
               accessToken={accessToken}
               onGenerateToken={generateNewToken}
+              kvStore={db}
+              onLogout={handleLogout}
               onBack={() => setCurrentView("dashboard")}
             />
           )}
