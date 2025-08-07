@@ -23,9 +23,9 @@ import {
 const app = new Hono();
 const PORT = 3001;
 
-// 20 requests per minute
+// 30 requests per minute
 const rateLimiter = new RateLimiterMemory({
-  points: 20,
+  points: 30,
   duration: 60,
 });
 
