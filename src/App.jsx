@@ -24,7 +24,7 @@ import { KVStore } from "kvstore-client";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
 
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = "/api";
 
 function App() {
   const [currentView, setCurrentView] = useState("front-page");

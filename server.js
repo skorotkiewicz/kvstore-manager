@@ -1,12 +1,13 @@
 // biome-ignore assist/source/organizeImports: <>
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serve } from "@hono/node-server";
+// import { serve } from "@hono/node-server";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 import "dotenv/config";
+import { fileURLToPath } from "node:url";
 import {
   initDB,
   DB_PATH,
@@ -20,8 +21,10 @@ import {
   verifyCaptcha,
 } from "./libs.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = new Hono();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+const isProd = process.env.NODE_ENV === "production";
 
 // 30 requests per minute
 const rateLimiter = new RateLimiterMemory({
@@ -519,15 +522,98 @@ async function handleDeleteAccount(c, { password, confirmation }) {
   });
 }
 
-// Initialize database and start server
-initDB()
-  .then(() => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  })
-  .catch((error) => {
-    console.error("Failed to start server:", error);
-  });
+// Static file serving middleware for production
+app.use("/*", async (c, next) => {
+  const url = new URL(c.req.url).pathname;
 
-serve({ port: PORT, fetch: app.fetch });
+  // Skip API routes
+  if (url.startsWith("/api/")) {
+    return next();
+  }
+
+  if (isProd) {
+    // Production: serve built files
+    const distPath = path.join(__dirname, "dist");
+
+    try {
+      const filePath = path.join(distPath, url === "/" ? "index.html" : url);
+      const stat = await fs.stat(filePath);
+
+      if (stat.isFile()) {
+        const content = await fs.readFile(filePath);
+        const ext = path.extname(filePath);
+        const contentType = getContentType(ext);
+        c.header("Content-Type", contentType);
+        return c.body(content);
+      }
+    } catch {}
+
+    // Fallback to index.html for SPA
+    try {
+      const indexPath = path.join(distPath, "index.html");
+      const indexContent = await fs.readFile(indexPath, "utf-8");
+      c.header("Content-Type", "text/html");
+      return c.html(indexContent);
+    } catch {
+      return c.text("Application not built", 500);
+    }
+  }
+
+  return next();
+});
+
+// Initialize database and start server
+async function startServer() {
+  try {
+    await initDB();
+
+    if (!isProd) {
+      // Development: start Vite dev server
+      console.log("Starting Vite dev server...");
+      const { spawn } = await import("node:child_process");
+      const viteProcess = spawn("bunx", ["vite"], {
+        stdio: "inherit",
+        cwd: __dirname,
+      });
+
+      process.on("SIGINT", () => {
+        viteProcess.kill("SIGINT");
+        process.exit(0);
+      });
+    }
+
+    console.log(`API Server running on http://localhost:${PORT}`);
+    console.log(`Mode: ${isProd ? "production" : "development"}`);
+
+    if (!isProd) {
+      console.log("Vite dev server will run on http://localhost:5173");
+      console.log(
+        "Make sure to access the app through Vite dev server in development",
+      );
+    }
+
+    // serve({ port: PORT, fetch: app.fetch });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+function getContentType(ext) {
+  const types = {
+    ".html": "text/html",
+    ".js": "application/javascript",
+    ".css": "text/css",
+    ".json": "application/json",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".gif": "image/gif",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+  };
+  return types[ext] || "text/plain";
+}
+
+startServer();
 
 export default { port: PORT, fetch: app.fetch };
