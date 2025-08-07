@@ -18,6 +18,7 @@ import FrontPageView from "./containers/FrontPageView";
 // import InfoBox from "./containers/InfoBox";
 import StoreEditor from "./containers/StoreEditor";
 import PopUp from "./containers/PopUp";
+import ConfirmDialog from "./containers/ConfirmDialog";
 import { KVStore } from "./KVStore";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
@@ -48,6 +49,12 @@ function App() {
     message: "",
     type: "info",
   });
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const showPopup = (message, type = "info") => {
@@ -56,6 +63,14 @@ function App() {
 
   const closePopup = () => {
     setPopup({ show: false, message: "", type: "info" });
+  };
+
+  const showConfirm = (title, message, onConfirm) => {
+    setConfirmDialog({ show: true, title, message, onConfirm });
+  };
+
+  const closeConfirm = () => {
+    setConfirmDialog({ show: false, title: "", message: "", onConfirm: null });
   };
 
   const handleReCaptchaVerify = useCallback(async () => {
@@ -257,22 +272,25 @@ function App() {
   };
 
   const clearStore = async () => {
-    if (
-      window.confirm("Are you sure you want to clear all data in this store?")
-    ) {
-      try {
-        await db.clear();
-        prevAction(
-          "clear",
-          { dbName: selectedDb, storeName: selectedStore },
-          true,
-        );
+    showConfirm(
+      "Clear Store",
+      "Are you sure you want to clear all data in this store? This action cannot be undone.",
+      async () => {
+        try {
+          await db.clear();
+          prevAction(
+            "clear",
+            { dbName: selectedDb, storeName: selectedStore },
+            true,
+          );
 
-        loadStoreData(selectedDb, selectedStore);
-      } catch (error) {
-        showPopup(`Failed to clear store: ${error.message}`, "error");
-      }
-    }
+          loadStoreData(selectedDb, selectedStore);
+          showPopup("Store cleared successfully!", "success");
+        } catch (error) {
+          showPopup(`Failed to clear store: ${error.message}`, "error");
+        }
+      },
+    );
   };
 
   const deleteStore = async (dbName, storeName) => {
@@ -472,6 +490,8 @@ function App() {
               stores={stores}
               selectedStore={selectedStore}
               storeData={storeData}
+              showConfirm={showConfirm}
+              closeConfirm={closeConfirm}
               onCreateDatabase={createDatabase}
               onSelectDatabase={loadStores}
               onCreateStore={createStore}
@@ -515,6 +535,18 @@ function App() {
         message={popup.message}
         type={popup.type}
         onClose={closePopup}
+      />
+
+      <ConfirmDialog
+        show={confirmDialog.show}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          closeConfirm();
+        }}
+        onCancel={closeConfirm}
+        type="danger"
       />
     </div>
   );

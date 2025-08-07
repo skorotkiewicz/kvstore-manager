@@ -16,6 +16,8 @@ function DashboardView({
   stores,
   selectedStore,
   storeData,
+  showConfirm,
+  closeConfirm,
   onCreateDatabase,
   onSelectDatabase,
   onCreateStore,
@@ -169,13 +171,14 @@ function DashboardView({
                 <button
                   type="button"
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        `Are you sure you want to delete database "${selectedDb}"? This will remove all stores and data.`,
-                      )
-                    ) {
-                      onDeleteDatabase(selectedDb);
-                    }
+                    showConfirm(
+                      "Delete Database",
+                      `Are you sure you want to delete database "${selectedDb}"? This will remove all stores and data.`,
+                      () => {
+                        onDeleteDatabase(selectedDb);
+                        closeConfirm();
+                      },
+                    );
                   }}
                   className="quick-btn danger"
                   disabled={isLoading}
@@ -237,13 +240,14 @@ function DashboardView({
                 <button
                   type="button"
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        `Are you sure you want to delete store "${selectedStore}"? This will remove all data in this store.`,
-                      )
-                    ) {
-                      onDeleteStore(selectedDb, selectedStore);
-                    }
+                    showConfirm(
+                      "Delete Store",
+                      `Are you sure you want to delete store "${selectedStore}"? This will remove all stores and data.`,
+                      () => {
+                        onDeleteStore(selectedDb, selectedStore);
+                        closeConfirm();
+                      },
+                    );
                   }}
                   className="quick-btn danger"
                   disabled={isLoading}
