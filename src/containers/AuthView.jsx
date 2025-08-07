@@ -36,12 +36,10 @@ function AuthView({
   }, [executeRecaptcha]);
 
   useEffect(() => {
-    if (
-      import.meta.env.VITE_CAPTCHA_ENABLED === "true" &&
-      currentView === "login"
-    ) {
-      handleReCaptchaVerify();
-    }
+    if (import.meta.env.VITE_CAPTCHA_ENABLED !== "true") return;
+    if (currentView !== "login") return;
+
+    handleReCaptchaVerify();
   }, [handleReCaptchaVerify]);
 
   const handleSubmit = (e) => {

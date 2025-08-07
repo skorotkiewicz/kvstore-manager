@@ -2,11 +2,7 @@
 
 A comprehensive full-stack key-value store management application built with React and Node.js. This application provides a complete solution for managing multiple databases, stores, and key-value pairs with user authentication and a modern web interface.
 
-### [DEMO - kv.sekor.eu.org](https://kv.sekor.eu.org/)
-**email**: admin@example.com  
-**password**: adminadmin  
-
-demo restart every 10 minutes
+### [kv.sekor.eu.org](https://kv.sekor.eu.org/)
 
 ## 🚀 Features
 
