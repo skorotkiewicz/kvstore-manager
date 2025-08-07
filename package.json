@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server.js",
-    "start": "vite & node server.js --watch",
+    "server": "node server.js --watch",
+    "start": "vite & node server.js",
     "prod": "vite build & vite preview & node server.js --watch",
     "build": "vite build",
     "preview": "vite preview"
