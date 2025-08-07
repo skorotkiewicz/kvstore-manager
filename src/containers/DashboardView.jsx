@@ -25,6 +25,7 @@ function DashboardView({
   onClearStore,
   onDeleteStore,
   onDeleteDatabase,
+  onEditStore,
 }) {
   const [newDbName, setNewDbName] = useState("");
   const [newStoreName, setNewStoreName] = useState("");
@@ -296,6 +297,16 @@ function DashboardView({
             {selectedStore && (
               <div className="card-actions">
                 <span className="items-count">{totalKeys} items</span>
+                <button
+                  type="button"
+                  onClick={onEditStore}
+                  className="btn btn-primary"
+                  disabled={isLoading}
+                  style={{ fontSize: "0.8125rem", padding: "0.5rem 0.75rem" }}
+                >
+                  <Edit3 size={16} />
+                  Edit Store
+                </button>
                 <button
                   type="button"
                   onClick={onClearStore}

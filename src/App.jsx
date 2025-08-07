@@ -15,7 +15,8 @@ import AuthView from "./containers/AuthView";
 import ApiDocsView from "./containers/ApiDocsView";
 import SettingsView from "./containers/SettingsView";
 import FrontPageView from "./containers/FrontPageView";
-import InfoBox from "./containers/InfoBox";
+// import InfoBox from "./containers/InfoBox";
+import StoreEditor from "./containers/StoreEditor";
 import { KVStore } from "./KVStore";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import "./App.css";
@@ -33,13 +34,14 @@ function App() {
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState(null);
   const [storeData, setStoreData] = useState({});
-  const [lastOperation, setLastOperation] = useState(null);
-  const [showInfoBox, setShowInfoBox] = useState(false);
+  // const [lastOperation, setLastOperation] = useState(null);
+  // const [showInfoBox, setShowInfoBox] = useState(false);
   const [captcha, setCaptcha] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("darkMode") === "true" || true,
   );
+  const [showStoreEditor, setShowStoreEditor] = useState(false);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleReCaptchaVerify = useCallback(async () => {
@@ -73,9 +75,10 @@ function App() {
     dbName: selectedDb,
   });
 
-  const prevAction = (type, data, box = true) => {
-    setLastOperation({ type, data });
-    setShowInfoBox(box);
+  const prevAction = (_type, _data, _box = true) => {
+    // setLastOperation({ type, data });
+    // setShowInfoBox(box);
+    return;
   };
 
   useEffect(() => {
@@ -294,6 +297,34 @@ function App() {
     }
   };
 
+  const openStoreEditor = () => {
+    setShowStoreEditor(true);
+  };
+
+  const saveStoreData = async (newData) => {
+    try {
+      // Clear the store first
+      await db.clear();
+
+      // Set all new key-value pairs
+      for (const [key, value] of Object.entries(newData)) {
+        await db.set(key, value);
+      }
+
+      prevAction(
+        "edit-store",
+        { dbName: selectedDb, storeName: selectedStore, data: newData },
+        true,
+      );
+
+      // Reload the store data
+      loadStoreData(selectedDb, selectedStore);
+      alert("Store updated successfully!");
+    } catch (error) {
+      alert(`Failed to update store: ${error.message}`);
+    }
+  };
+
   if (currentView === "front-page") {
     return (
       <FrontPageView
@@ -316,7 +347,7 @@ function App() {
   return (
     <div
       className={`app ${darkMode ? "dark" : ""}`}
-      onClick={() => showInfoBox && setShowInfoBox(false)}
+      // onClick={() => showInfoBox && setShowInfoBox(false)}
     >
       {/* Modern Sidebar */}
       <aside className={`sidebar-nav ${sidebarOpen ? "open" : "closed"}`}>
@@ -434,19 +465,32 @@ function App() {
               onClearStore={clearStore}
               onDeleteStore={deleteStore}
               onDeleteDatabase={deleteDatabase}
+              onEditStore={openStoreEditor}
               darkMode={darkMode}
             />
           )}
         </div>
       </main>
 
-      {showInfoBox && (
+      {/* {showInfoBox && (
         <InfoBox
           lastOperation={lastOperation}
           selectedDb={selectedDb}
           selectedStore={selectedStore}
           configs={{ baseUrl: `${API_BASE_URL}/connect`, accessToken }}
           onClose={() => setShowInfoBox(false)}
+        />
+      )} */}
+
+      {showStoreEditor && selectedStore && (
+        <StoreEditor
+          isOpen={showStoreEditor}
+          onClose={() => setShowStoreEditor(false)}
+          storeData={storeData}
+          selectedDb={selectedDb}
+          selectedStore={selectedStore}
+          onSave={saveStoreData}
+          darkMode={darkMode}
         />
       )}
     </div>
