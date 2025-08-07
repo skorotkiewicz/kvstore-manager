@@ -44,6 +44,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("darkMode") === "true" || true,
   );
+  const [isGetStarted, setIsGetStarted] = useState(false);
   const [showStoreEditor, setShowStoreEditor] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
@@ -361,8 +362,14 @@ function App() {
   if (currentView === "front-page") {
     return (
       <FrontPageView
-        onGetStarted={() => setCurrentView("login")}
-        onLogin={() => setCurrentView("login")}
+        onGetStarted={() => {
+          setIsGetStarted(true);
+          setCurrentView("login");
+        }}
+        onLogin={() => {
+          setIsGetStarted(false);
+          setCurrentView("login");
+        }}
       />
     );
   }
@@ -373,6 +380,7 @@ function App() {
         onRegister={handleRegister}
         onLogin={handleLogin}
         onBackToFrontPage={() => setCurrentView("front-page")}
+        isGetStarted={isGetStarted}
       />
     );
   }

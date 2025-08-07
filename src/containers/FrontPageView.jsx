@@ -8,6 +8,7 @@ import {
   BarChart3,
   Users,
 } from "lucide-react";
+import { CodeBlock } from "./CodeBlock";
 
 function FrontPageView({ onGetStarted, onLogin }) {
   return (
@@ -143,6 +144,95 @@ function FrontPageView({ onGetStarted, onLogin }) {
                 Fast operations and responsive interface. Modern design with
                 dark/light mode support.
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Code Examples Section */}
+      <div className="code-examples">
+        <div className="code-examples-container">
+          <div className="code-examples-header">
+            <h2>See it in action</h2>
+            <p>Experience the simplicity of kvstore operations</p>
+          </div>
+
+          <div className="code-demo-grid">
+            <div className="code-demo-card">
+              <div className="code-demo-header">
+                <Code size={20} />
+                <h3>Store Data</h3>
+              </div>
+              <div className="code-block">
+                <pre>
+                  <code>
+                    <CodeBlock id="dbSet" language="js">
+                      {`await db.set('user:123', { 
+  name: 'John', 
+  age: 30 
+});
+
+
+`}
+                    </CodeBlock>
+                  </code>
+                </pre>
+              </div>
+              <div className="demo-result">
+                <span className="result-indicator success">✓</span>
+                Data stored successfully
+              </div>
+            </div>
+
+            <div className="code-demo-card">
+              <div className="code-demo-header">
+                <Database size={20} />
+                <h3>Retrieve Data</h3>
+              </div>
+              <div className="code-block">
+                <pre>
+                  <code>
+                    <CodeBlock id="dbSet" language="js">
+                      {`const user = 
+    await db.get('user:123');
+
+console.log(user.name); // "John"
+
+
+`}
+                    </CodeBlock>
+                  </code>
+                </pre>
+              </div>
+              <div className="demo-result">
+                <span className="result-indicator info">→</span>
+                Returns: {`{ name: "John", age: 30 }`}
+              </div>
+            </div>
+
+            <div className="code-demo-card">
+              <div className="code-demo-header">
+                <Zap size={20} />
+                <h3>Batch Operations</h3>
+              </div>
+              <div className="code-block">
+                <pre>
+                  <code>
+                    <CodeBlock id="dbSet" language="js">
+                      {`await db.setMany([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+    ['key3', { 
+      data: 'complex object' }] 
+    ]);`}
+                    </CodeBlock>
+                  </code>
+                </pre>
+              </div>
+              <div className="demo-result">
+                <span className="result-indicator success">✓</span>3 records
+                stored
+              </div>
             </div>
           </div>
         </div>

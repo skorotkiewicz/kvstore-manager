@@ -10,8 +10,8 @@ import {
   Shield,
 } from "lucide-react";
 
-function AuthView({ onRegister, onLogin, onBackToFrontPage }) {
-  const [isLogin, setIsLogin] = useState(true);
+function AuthView({ onRegister, onLogin, onBackToFrontPage, isGetStarted }) {
+  const [isLogin, setIsLogin] = useState(!isGetStarted);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
