@@ -26,9 +26,9 @@ const app = new Hono();
 const PORT = process.env.PORT || 3001;
 const isProd = process.env.NODE_ENV === "production";
 
-// 30 requests per minute
+// 120 requests per minute
 const rateLimiter = new RateLimiterMemory({
-  points: 30,
+  points: 120,
   duration: 60,
 });
 
