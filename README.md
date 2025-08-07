@@ -5,28 +5,34 @@ A comprehensive full-stack key-value store management application built with Rea
 ## 🚀 Features
 
 ### Backend (server.js)
-- **RESTful API** with Express.js
-- **User Authentication** with token-based security
+- **RESTful API** with Hono.js framework
+- **User Authentication** with token-based security and Google reCAPTCHA
+- **Rate Limiting** - 30 requests per minute per user
 - **Multi-tenant Architecture** - Each user has isolated databases
 - **File-based Storage** - Simple JSON file storage system
 - **Complete CRUD Operations** for databases, stores, and key-value pairs
 - **Secure Password Hashing** with SHA-256
 - **CORS Support** for cross-origin requests
+- **Account Management** - Password changes and account deletion
 
 ### Frontend (React App)
 - **Modern React Application** with hooks and functional components
-- **Multi-view Interface** - Dashboard, Settings, API Documentation
+- **Multi-view Interface** - Front page, Dashboard, Settings, API Documentation
+- **Advanced Code Editor** with Monaco Editor (VS Code-like)
+- **Syntax Highlighting** with Shiki for multiple languages
 - **Real-time Operations** with immediate UI updates
 - **User Management** - Registration, login, logout, token generation
 - **Database Management** - Create, view, delete databases (max 3 per user)
 - **Store Management** - Create, view, delete stores within databases
 - **Key-Value Operations** - Set, get, update, delete individual or multiple keys
-- **Interactive UI** with confirmation dialogs and operation feedback
+- **Interactive UI** with custom popups, confirmation dialogs, and operation feedback
+- **Google reCAPTCHA** integration for enhanced security
 
 ## 📋 Prerequisites
 
-- **Node.js** (v16 or higher)
+- **Node.js** (v18 or higher)
 - **npm** or **bun** package manager
+- **Google reCAPTCHA keys** (optional, for CAPTCHA verification)
 
 ## 🔧 Installation
 
@@ -86,10 +92,12 @@ The backend exposes a single endpoint that handles all operations:
 **POST** `/api/connect`
 
 ### Authentication Actions
-- `register` - Create new user account
-- `login` - Authenticate user
+- `register` - Create new user account (with CAPTCHA)
+- `login` - Authenticate user (with CAPTCHA)
 - `generate-token` - Generate new access token
 - `get-user-info` - Get current user information
+- `change-password` - Change user password
+- `delete-account` - Delete user account and all data
 
 ### Database Operations
 - `get-databases` - List user's databases
@@ -128,11 +136,20 @@ project/
 │       ├── DashboardView.jsx # Main application interface
 │       ├── SettingsView.jsx  # User settings and token management
 │       ├── ApiDocsView.jsx   # API documentation interface
+│       ├── FrontPageView.jsx # Landing page component
+│       ├── StoreEditor.jsx   # Advanced store data editor
+│       ├── CodeEditor.jsx    # Monaco code editor wrapper
+│       ├── CodeBlock.jsx     # Syntax highlighted code display
+│       ├── PopUp.jsx         # Custom popup component
+│       ├── ConfirmDialog.jsx # Confirmation dialog component
 │       └── InfoBox.jsx       # Operation feedback component
-├── server.js                # Express.js backend server
+├── server.js                # Hono.js backend server
+├── libs.js                  # Server utility functions
 ├── database/                # File-based storage directory
-│   └── users.json           # User accounts storage
+│   ├── users.json           # User accounts storage
+│   └── {user-id}/           # User-specific data directories
 ├── package.json             # Dependencies and scripts
+├── biome.json               # Biome linter configuration
 ├── vite.config.js           # Vite configuration
 └── index.html               # HTML entry point
 ```
@@ -147,8 +164,19 @@ project/
 
 ## 💾 Data Storage
 
-The application uses a simple file-based storage system:
+The application uses modern dependencies and architecture:
 
+**Key Technologies:**
+- **Hono.js** - Fast, lightweight web framework replacing Express.js
+- **React 19** - Latest React version with modern features  
+- **Monaco Editor** - VS Code editor component for advanced editing
+- **Shiki** - Fast syntax highlighter with multiple language support
+- **Lucide React** - Beautiful, customizable icon library
+- **Rate Limiter** - API rate limiting for security
+- **Google reCAPTCHA** - Bot protection and spam prevention
+- **Biome** - Fast linter and formatter replacing ESLint/Prettier
+
+**Storage System:**
 - **Users** are stored in `database/users.json`
 - **User data** is organized in `database/{user-id}/{database-name}/{store-name}.json`
 - Each user can have **maximum 3 databases**
@@ -159,9 +187,12 @@ The application uses a simple file-based storage system:
 
 - **Password Hashing** using SHA-256
 - **Token-based Authentication** with secure random tokens
+- **Google reCAPTCHA** integration for bot protection
+- **Rate Limiting** - 30 requests per minute per user
 - **Request Validation** for all API endpoints
 - **User Isolation** - users can only access their own data
 - **CORS Protection** configured for cross-origin requests
+- **Secure Account Management** with password confirmation
 
 ## 🎯 Usage Examples
 
@@ -190,15 +221,27 @@ The application includes built-in API documentation accessible from the main int
 ## 🔧 Configuration
 
 ### Backend Configuration
-- **Port**: 3001 (configurable in server.js:9)
-- **Database Path**: `./database` (configurable in server.js:16)
+- **Port**: 3001 (configurable in server.js:24)
+- **Database Path**: `./database` (configurable in libs.js:7)
+- **Rate Limiting**: 30 requests per 60 seconds (configurable in server.js:27-30)
 - **CORS**: Enabled for all origins
+- **CAPTCHA**: Optional reCAPTCHA verification (configured via environment variables)
 
 ### Frontend Configuration
-- **API Base URL**: `http://localhost:3001/api` (configurable in App.jsx:10)
+- **API Base URL**: `http://localhost:3001/api` (configurable in KVStore.js)
 - **Development Port**: 5173 (Vite default)
+- **Google reCAPTCHA**: Site key configured via environment variables
+- **Monaco Editor**: VS Code-like editor with multiple language support
 
 ## 🚀 Deployment
+
+### Environment Variables
+Create a `.env` file for production configuration:
+```bash
+CAPTCHA_SECRET_KEY=your_recaptcha_secret_key
+VITE_CAPTCHA_ENABLED=true
+VITE_CAPTCHA_SITE_KEY=your_recaptcha_site_key
+```
 
 ### Backend Deployment
 ```bash
@@ -225,4 +268,4 @@ This project is licensed under the MIT License.
 
 ---
 
-**Built with ❤️ using React, Node.js, and Express.js**
+**Built with ❤️ using React 19, Hono.js, Monaco Editor, and modern web technologies**
