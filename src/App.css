@@ -84,7 +84,7 @@ body {
   background-color: transparent !important;
 }
 
-/* ===== MODERN SIDEBAR LAYOUT ===== */
+/* ===== SIDEBAR LAYOUT ===== */
 .sidebar-nav {
   width: var(--sidebar-width);
   background-color: var(--sidebar-bg);
@@ -470,8 +470,8 @@ body {
   border-bottom: 2px solid #e2e8f0;
 }
 
-/* ===== MODERN AUTH ===== */
-.modern-auth-container {
+/* ===== AUTH ===== */
+.auth-container {
   min-height: 100vh;
   display: flex;
   position: relative;
@@ -523,7 +523,7 @@ body {
   min-height: 100vh;
 }
 
-.modern-auth-card {
+.auth-card {
   flex: 1;
   max-width: 480px;
   background: var(--bg-primary);
@@ -1841,15 +1841,15 @@ body {
   line-height: 1.5;
 }
 
-/* ===== MODERN FRONT PAGE ===== */
-.modern-front-page {
+/* ===== FRONT PAGE ===== */
+.front-page {
   min-height: 100vh;
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
-/* Modern Hero Section */
-.modern-hero {
+/* Hero Section */
+.hero {
   position: relative;
   min-height: 100vh;
   display: flex;
@@ -2030,8 +2030,8 @@ body {
   font-size: 1.125rem;
 }
 
-/* Modern Features Section */
-.modern-features {
+/* Features Section */
+.features {
   padding: 6rem 2rem;
   background: var(--bg-primary);
 }
@@ -2091,8 +2091,8 @@ body {
   font-weight: 500;
 }
 
-/* Modern CTA Section */
-.modern-cta {
+/* CTA Section */
+.cta {
   padding: 6rem 2rem;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
@@ -2350,7 +2350,7 @@ body {
   cursor: not-allowed;
 }
 
-/* ===== MODERN POPUP STYLES ===== */
+/* ===== POPUP STYLES ===== */
 .popup-overlay {
   position: fixed;
   top: 0;

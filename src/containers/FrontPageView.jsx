@@ -11,9 +11,9 @@ import {
 
 function FrontPageView({ onGetStarted, onLogin }) {
   return (
-    <div className="modern-front-page">
+    <div className="front-page">
       {/* Hero Section */}
-      <div className="modern-hero">
+      <div className="hero">
         <div className="hero-background">
           <div className="hero-pattern"></div>
         </div>
@@ -70,7 +70,7 @@ function FrontPageView({ onGetStarted, onLogin }) {
       </div>
 
       {/* Features Section */}
-      <div className="modern-features">
+      <div className="features">
         <div className="features-container">
           <div className="features-header">
             <h2>Features & Capabilities</h2>
@@ -149,7 +149,7 @@ function FrontPageView({ onGetStarted, onLogin }) {
       </div>
 
       {/* CTA Section */}
-      <div className="modern-cta">
+      <div className="cta">
         <div className="cta-content">
           <div className="cta-icon">
             <BarChart3 size={48} />

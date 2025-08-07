@@ -36,13 +36,13 @@ function AuthView({ onRegister, onLogin, onBackToFrontPage }) {
   };
 
   return (
-    <div className="modern-auth-container">
+    <div className="auth-container">
       <div className="auth-background">
         <div className="auth-pattern"></div>
       </div>
 
       <div className="auth-content">
-        <div className="modern-auth-card">
+        <div className="auth-card">
           {/* Header */}
           <div className="auth-header">
             {onBackToFrontPage && (
