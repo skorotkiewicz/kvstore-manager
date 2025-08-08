@@ -8,7 +8,7 @@ import {
   BarChart3,
   Users,
 } from "lucide-react";
-import { CodeBlock } from "./CodeBlock";
+import { CodeBlock } from "../components/CodeBlock";
 
 function FrontPageView({ onGetStarted, onLogin }) {
   return (

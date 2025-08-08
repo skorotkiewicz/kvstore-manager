@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Settings,
-  ArrowLeft,
   User,
   Key,
   RefreshCw,
@@ -16,7 +15,6 @@ export default function SettingsView({
   user,
   accessToken,
   onGenerateToken,
-  onBack,
   kvStore,
   onLogout,
 }) {
@@ -127,16 +125,6 @@ export default function SettingsView({
     <div className="settings-container">
       {/* Header Section */}
       <div className="header-section">
-        <button
-          type="button"
-          onClick={onBack}
-          className="back-button"
-          style={{ marginBottom: "0rem" }}
-          // className="btn btn-secondary"
-        >
-          <ArrowLeft size={16} />
-          Back to Dashboard
-        </button>
         <div className="settings-header-content">
           <div className="header-title">
             <Settings size={24} />

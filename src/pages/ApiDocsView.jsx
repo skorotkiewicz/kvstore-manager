@@ -1,25 +1,15 @@
 import { useState } from "react";
 import KVStoreSource from "../KVStore.js?raw";
-import { CodeBlock } from "./CodeBlock";
-import { Book, ArrowLeft, FileText, Package, Lightbulb } from "lucide-react";
+import { CodeBlock } from "../components/CodeBlock";
+import { Book, FileText, Package, Lightbulb } from "lucide-react";
 
-function ApiDocsView({ accessToken, onBack }) {
+function ApiDocsView({ accessToken }) {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
     <div className="api-docs-container">
       {/* Header Section */}
       <div className="header-section">
-        <button
-          type="button"
-          onClick={onBack}
-          className="back-button"
-          style={{ marginBottom: "0rem" }}
-          // className="btn btn-secondary"
-        >
-          <ArrowLeft size={16} />
-          Back to Dashboard
-        </button>
         <div className="docs-header-content">
           <div className="header-title">
             <Book size={24} />
