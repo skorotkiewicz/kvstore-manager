@@ -156,12 +156,7 @@ async function handleRegister(c, { username, email, password, captcha }) {
   });
 }
 
-async function handleLogin(c, { email, password, captcha }) {
-  const isCaptcha = await verifyCaptcha(c, captcha);
-  if (isCaptcha !== true) {
-    return c.json({ error: "CAPTCHA verification failed" }, 400);
-  }
-
+async function handleLogin(c, { email, password }) {
   const users = await readUsers();
   const user = users[email];
 

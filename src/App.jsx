@@ -128,7 +128,6 @@ function App() {
 
   const handleLogin = async (formData) => {
     try {
-      formData.captcha = captcha;
       const result = await db.login(formData);
 
       setUser(result.user);
