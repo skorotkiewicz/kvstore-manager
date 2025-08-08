@@ -1,7 +1,7 @@
 // biome-ignore assist/source/organizeImports: <>
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-// import { serve } from "@hono/node-server";
+import { serve } from "@hono/node-server";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -25,6 +25,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = new Hono();
 const PORT = process.env.PORT || 3001;
 const isProd = process.env.NODE_ENV === "production";
+const isBun = typeof process !== "undefined" && process.isBun;
 
 // 120 requests per minute
 const rateLimiter = new RateLimiterMemory({
@@ -586,8 +587,9 @@ async function startServer() {
         "Make sure to access the app through Vite dev server in development",
       );
     }
-
-    // serve({ port: PORT, fetch: app.fetch });
+    if (!isBun) {
+      serve({ port: PORT, fetch: app.fetch });
+    }
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
