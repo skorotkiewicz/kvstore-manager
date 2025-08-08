@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import {
   Database,
   ArrowLeft,
@@ -9,7 +9,7 @@ import {
   EyeOff,
   Shield,
 } from "lucide-react";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function AuthView({
   onRegister,
@@ -17,7 +17,6 @@ function AuthView({
   onBackToFrontPage,
   isGetStarted,
   setCaptcha,
-  currentView,
 }) {
   const [isLogin, setIsLogin] = useState(!isGetStarted);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,21 +25,6 @@ function AuthView({
     email: "",
     password: "",
   });
-  const { executeRecaptcha } = useGoogleReCaptcha();
-
-  const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha) return;
-
-    const token = await executeRecaptcha();
-    setCaptcha(token);
-  }, [executeRecaptcha]);
-
-  useEffect(() => {
-    if (import.meta.env.VITE_CAPTCHA_ENABLED !== "true") return;
-    if (currentView !== "login") return;
-
-    handleReCaptchaVerify();
-  }, [handleReCaptchaVerify]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -154,6 +138,13 @@ function AuthView({
                 </button>
               </div>
             </div>
+
+            {!isLogin && import.meta.env.VITE_CAPTCHA_ENABLED === "true" && (
+              <ReCAPTCHA
+                sitekey={import.meta.env.VITE_CAPTCHA_PUBLIC_KEY}
+                onChange={setCaptcha}
+              />
+            )}
 
             <button type="submit" className="auth-submit-btn">
               <Shield size={20} />
