@@ -369,11 +369,8 @@ function App() {
   }
 
   return (
-    <div
-      className={`app ${darkMode ? "dark" : ""}`}
-      // onClick={() => showInfoBox && setShowInfoBox(false)}
-    >
-      {/* Modern Sidebar */}
+    <div className={`app ${darkMode ? "dark" : ""}`}>
+      {/* Sidebar */}
       <aside className={`sidebar-nav ${sidebarOpen ? "open" : "closed"}`}>
         <div className="sidebar-header">
           <div className="sidebar-brand">
